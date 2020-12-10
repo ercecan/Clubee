@@ -1,0 +1,14 @@
+{%extends "base.html"%} {% block title %}Announcements{% endblock %} {% block
+    content %}
+<h2>Announcements</h2>
+<ul>
+    {% for ann in anns %}
+    <li>
+        {{ ann.name }}<br>
+        {{ ann.header }}<br>
+        {{ ann.description }}
+    </li>
+
+    {% endfor %}
+</ul>
+{%endblock%}

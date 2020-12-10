@@ -1,0 +1,26 @@
+{%extends "base.html"%}
+{% block title %}
+
+{% if club.name %}
+club.name
+
+{% endif %}
+
+{% endblock %}
+
+{% block content %}
+<h2 class="title">Movie</h2>
+
+<table class="table">
+    <tr>
+        <th>Name:</th>
+        <td>{{ club.name }}</td>
+    </tr>
+    {% if club.description %}
+    <tr>
+        <th>Description:</th>
+        <td>{{ club.description }}</td>
+    </tr>
+    {% endif %}
+</table>
+{%endblock%}

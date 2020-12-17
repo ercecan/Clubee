@@ -11,11 +11,15 @@ def create_app():
     app.config.from_object("settings")
 
     app.add_url_rule("/", view_func=views.home_page)
+    app.add_url_rule("/index", view_func=views.home_page)
     app.add_url_rule("/home", view_func=views.home_page)
     app.add_url_rule("/clubs", view_func=views.clubs_page)
     app.add_url_rule("/clubs/announcements", view_func=views.anns_page)
     app.add_url_rule("/clubs/<name>", view_func=views.club_page)
-    app.add_url_rule("/login", view_func=views.login)
+    app.add_url_rule("/login", view_func=views.login, methods=["GET", "POST"])
+    app.add_url_rule("/admin-login",
+                     view_func=views.admin_login,
+                     methods=["GET", "POST"])
 
     db = Database()
     db.add_club(Club("Acapella", description="singing"))

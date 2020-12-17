@@ -1,6 +1,6 @@
 from flask import Flask, render_template, current_app, abort, redirect, request, url_for, flash
 from datetime import datetime
-from forms import LoginForm
+from forms import LoginForm, AdminLoginForm
 
 
 def home_page():
@@ -38,4 +38,20 @@ def club_page(name):
 
 def login():
     form = LoginForm()
+    if form.validate_on_submit():
+        flash(
+            'Login requested for student with student ID: {}, remember_me={}'.
+            format(form.username.data, form.remember_me.data))
+        return redirect('/index')
     return render_template('login.html', title='Sign In', form=form)
+
+
+def admin_login():
+    form = AdminLoginForm()
+    if form.validate_on_submit():
+        flash('Login requested for admin: {}, remember_me={}'.format(
+            form.username.data, form.remember_me.data))
+        return redirect('/index')
+    return render_template('admin_login.html',
+                           title='Sign In as Admin',
+                           form=form)

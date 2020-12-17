@@ -24,7 +24,8 @@
 <body>
     <div>
         Clubee
-        <a href="{{ url_for('login') }}">login</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('admin_login') }}">Admin Login</a>
         <a href="{{ url_for('home_page') }}">Home</a>
         <a href="{{ url_for('clubs_page') }}">Clubs</a>
         <a href="{{ url_for('anns_page') }}">Announcements</a>
@@ -34,7 +35,16 @@
     {%block content%} {%endblock%}
 
 
-
+    <hr>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
     <!--bootstrap js and jquery links-->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

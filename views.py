@@ -30,9 +30,11 @@ def anns_page():  #announcements page
     return render_template("announcements.html", anns=anns)
 
 
-def club_page(name):
+def club_page(club_key):
     db = current_app.config["db"]
-    club = db.get_club(name)
+    club = db.get_club(club_key)
+    if club is None:
+        abort(404)
     return render_template("club.html", club=club)
 
 
@@ -42,7 +44,7 @@ def login():
         flash(
             'Login requested for student with student ID: {}, remember_me={}'.
             format(form.username.data, form.remember_me.data))
-        return redirect('/index')
+        return redirect(url_for('home_page'))
     return render_template('login.html', title='Sign In', form=form)
 
 
@@ -51,7 +53,7 @@ def admin_login():
     if form.validate_on_submit():
         flash('Login requested for admin: {}, remember_me={}'.format(
             form.username.data, form.remember_me.data))
-        return redirect('/index')
+        return redirect(url_for('home_page'))
     return render_template('admin_login.html',
                            title='Sign In as Admin',
                            form=form)

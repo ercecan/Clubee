@@ -4,7 +4,6 @@ from forms import LoginForm, AdminLoginForm
 
 
 def home_page():
-
     today = datetime.today()
     day_name = today.strftime("%A")
     return render_template("index.html", day=day_name)
@@ -17,17 +16,9 @@ def clubs_page():
 
 
 def anns_page():  #announcements page
-
-    anns = [{
-        'name': 'ITU ACM',
-        'header': 'alumnight',
-        'description': 'alumnight today',
-    }, {
-        'name': 'ITU IEEE',
-        'header': 'circuit design',
-        'description': 'circuit today',
-    }]
-    return render_template("announcements.html", anns=anns)
+    db = current_app.config["db"]
+    announcements = db.get_announcements
+    return render_template("announcements.html", announcements=announcements)
 
 
 def club_page(club_key):

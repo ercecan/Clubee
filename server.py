@@ -8,7 +8,7 @@ from config import Config
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config.from_object("settings")
+    #app.config.from_object("settings")
 
     app.add_url_rule("/", view_func=views.home_page)
     app.add_url_rule("/index", view_func=views.home_page)
@@ -22,6 +22,7 @@ def create_app():
                      methods=["GET", "POST"])
 
     db = Database()
+    """
     db.add_club(
         Club("ITU ACM",
              description="singing",
@@ -43,7 +44,7 @@ def create_app():
              mission="IEEEmission",
              student_count=2,
              image_url="../static/images/itu_ieee.png"))
-
+    """
     app.config["db"] = db
     return app
 

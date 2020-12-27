@@ -15,62 +15,49 @@ club.name
 <table class="table">
     <tr>
         <th>Image:</th>
-        <td><img src={{club.image_url}} height="200" width="200"></td>
+        <td><img src='{{club[7]}}' height="200" width="200"></td>
     </tr>
     <tr>
         <th>Name:</th>
-        <td>{{ club.name }}</td>
+        <td>{{ club[1] }}</td>
     </tr>
 
     <tr>
         <th>Description:</th>
-        <td>{{ club.description }}</td>
+        <td>{{ club[2] }}</td>
     </tr>
     <tr>
         <th>History:</th>
-        <td>{{club.history}}</td>
+        <td>{{club[3]}}</td>
     </tr>
     <tr>
         <th>Vision:</th>
-        <td>{{club.vision}}</td>
+        <td>{{club[6]}}</td>
     </tr>
     <tr>
         <th>Mission:</th>
-        <td>{{club.mission}}</td>
+        <td>{{club[5]}}</td>
     </tr>
+    <!--
     <tr>
         <th>Announcements:</th>
         {%for ann in club.announcements%}
         <td>{{ann}}</td>
         {%endfor%}
     </tr>
+    
     <tr>
         <th>Events:</th>
         {%for event in club.events%}
         <td>{{event}}</td>
         {%endfor%}
     </tr>
+    -->
     <tr>
         <th>Number of students joined:</th>
-        <td>{{club.student_count}}</td>
+        <td>{{club[4]}}</td>
     </tr>
 
 
 </table>
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-<p>what we do is {{club.description}}</p>
-<p>what we do is {{club.history}}</p>
-<p>what we do is {{club.vision}}</p>
-<p>what we do is {{club.mission}}</p>
-<p>what we do is {{club.announcements}}</p>
-<p>what we do is {{club.events}}</p>
-<p>what we do is {{club.image_url}}</p>
-<p>what we do is {{club.student_count}}</p>
 {%endblock%}

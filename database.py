@@ -1,8 +1,12 @@
 from models import Club, Announcement, Event
+import psycopg2
 
 
 class Database:
     def __init__(self):
+        self.conn = psycopg2.connect(
+            "dbname='test' user='postgres' host='localhost' password='95175305Ee'"
+        )
         self.clubs = {}
         self.announcements = {}
         self.events = {}
@@ -38,6 +42,15 @@ class Database:
             del self.events[event_key]
 
     def get_club(self, club_key):
+
+        query_select_one = "SELECT * FROM clubs WHERE club_id = " + str(
+            club_key) + ";"
+        club_ = []
+        with self.conn.cursor() as curr:
+            curr.execute(query_select_one)
+            club_ = curr.fetchone()
+        """
+        #old style   
         club = self.clubs.get(club_key)
         if club is None:
             return None
@@ -50,6 +63,7 @@ class Database:
                      mission=club.mission,
                      student_count=club.student_count,
                      image_url=club.image_url)
+        """
         return club_
 
     def get_announcement(self, ann_key):
@@ -71,18 +85,24 @@ class Database:
         return event_
 
     def get_clubs(self):
+        query_select = "SELECT * FROM clubs"
         clubs = []
-        for club_key, club in self.clubs.items():
-            club_ = Club(name=club.name,
-                         description=club.description,
-                         history=club.history,
-                         announcements=club.announcements,
-                         events=club.events,
-                         vision=club.vision,
-                         mission=club.mission,
-                         student_count=club.student_count,
-                         image_url=club.image_url)
+        with self.conn.cursor() as curr:
+            curr.execute(query_select)
+            clubs = curr.fetchall()
+        """
+        for club in self.clubs.items():
+            club_ = Club(name=clubs[1],
+                         description=clubs[2],
+                         history=clubs[3],
+                         announcements=clubs[4],
+                         events=clubs[5],
+                         vision=clubs[6],
+                         mission=clubs[7],
+                         student_count=clubs[8],
+                         image_url=clubs[9])
             clubs.append((club_key, club_))
+        """
         return clubs
 
     def get_announcements(self, ann_key):

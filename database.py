@@ -1,12 +1,11 @@
 from models import Club, Announcement, Event
-import psycopg2
+import psycopg2 as dbapi2
+from config import Config
 
 
 class Database:
     def __init__(self):
-        self.conn = psycopg2.connect(
-            "dbname='test' user='postgres' host='localhost' password='95175305Ee'"
-        )
+        self.conn = dbapi2.connect(Config.db_url)
         self.clubs = {}
         self.announcements = {}
         self.events = {}

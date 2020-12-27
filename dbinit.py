@@ -1,38 +1,61 @@
 import psycopg2 as dbapi2
+from config import Config
+import sys
+"""
+dsn = #   dbname='Clubee' user='postgres'
+       #  host='localhost' password='95175305Ee'
 
-dsn = """dbname='test' user='postgres'
-         host='localhost' password='95175305Ee'"""
-
+"""
+"""
 try:
     conn = psycopg2.connect(dsn)
 except Exception as e:
     print(e, "   Unable to reacn the database")
 """
-###drop if exists and creat table
-query_drop = "DROP TABLE IF EXISTS clubs CASCADE;"
-query_create = "CREATE TABLE clubs (club_id SERIAL PRIMARY KEY,name VARCHAR(100) UNIQUE NOT NULL, description TEXT,history TEXT,student_count INTEGER DEFAULT 0, mission TEXT,vision TEXT,image_url TEXT);"
 
+
+def read_sql_from_file(filename):
+    with open(filename, 'r') as f:
+        content = f.read()
+        content = content.split(';')
+        content = [row + ";" for row in content]
+    return content
+
+
+def initialize():
+    try:
+        with dbapi2.connect(Config.db_url) as connection:
+            with connection.cursor() as cursor:
+                print("Connected...")
+
+                # drop_statements = read_sql_from_file('drop.sql')
+                # for statement in drop_statements:
+                #     if len(statement) > 5:
+                #         cursor.execute(statement)
+                # print("Drop tables...")
+
+                #create_statements = read_sql_from_file('database.sql')
+                #for statement in create_statements:
+                #    if len(statement) > 5:
+                #        cursor.execute(statement)
+                #print("Create tables...", file=sys.stderr)
+
+                #insert_statements = read_sql_from_file('clubs.sql')
+                #for statement in insert_statements:
+                #    if len(statement) > 5:
+                #        cursor.execute(statement)
+                #print("Inserting into clubs...", file=sys.stderr)
+
+    except (Exception, dbapi2.Error) as error:
+        print("Error while connecting to PostgreSQL: {}".format(error))
+
+
+if __name__ == "__main__":
+    initialize()
+"""
+##Should I do commits ??
 cur = conn.cursor()
 cur.execute(query_drop)
 cur.execute(query_create)
 conn.commit()
 """
-"""
-
-###insertion into table
-cur = conn.cursor()
-query_insert = "INSERT INTO clubs (name,description,history,student_count,mission,vision,image_url) VALUES ('ITU ACM','description', 'history',12,'mission','vision','../static/images/itu_acm.png');"
-query_insert2 = "INSERT INTO clubs (name,description,history,student_count,mission,vision,image_url) VALUES ('ITU IEEE','description', 'history',12,'mission','vision','../static/images/itu_acm.png');"
-cur.execute(query_insert)
-cur.execute(query_insert2)
-conn.commit()
-"""
-
-cur = conn.cursor()
-query_select = "SELECT * FROM clubs"
-cur.execute(query_select)
-rows = cur.fetchall()  ##we have the table in the variable
-
-print("\nShow me the databases:\n")
-#for row in rows:
-print("   ", rows[0][1], rows[1][1])  ##acts like a matrix x rows, n columns

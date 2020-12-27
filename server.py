@@ -7,6 +7,7 @@ from config import Config
 
 def create_app():
     app = Flask(__name__)
+    ####app = bilmem ne bilmem ne burda vercen
     app.config.from_object(Config)
     #app.config.from_object("settings")
 

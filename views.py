@@ -1,7 +1,7 @@
 from flask import Flask, render_template, current_app, abort, redirect, request, url_for, flash
 from datetime import datetime
 from forms import LoginForm, AdminLoginForm
-from flask_login import LoginManager, login_user, logout_user
+from flask_login import LoginManager, login_user, logout_user, login_required, login_fresh, current_user  #login_fresh returns true if the login is fresh(yeni)
 from user import get_user
 from passlib.hash import pbkdf2_sha256 as hasher
 
@@ -13,6 +13,15 @@ def home_page():
 
 
 def clubs_page():
+    db = current_app.config["db"]
+    clubs = db.get_clubs()
+    return render_template("clubs.html", clubs=clubs)
+
+
+@login_required
+def myclubs_page():
+    if not current_user.is_authenticated:
+        abort(404)
     db = current_app.config["db"]
     clubs = db.get_clubs()
     return render_template("clubs.html", clubs=clubs)

@@ -13,6 +13,7 @@
 
 CREATE TABLE users (
 user_id SERIAL PRIMARY KEY,
+email VARCHAR UNIQUE,
 name VARCHAR(30) NOT NULL, 
 surname VARCHAR(30) NOT NULL, 
 student_id CHAR(9) UNIQUE NOT NULL, 

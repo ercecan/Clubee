@@ -3,6 +3,7 @@ from database import Database
 from models import Club
 import views
 from config import Config
+from flask_login import LoginManager
 
 
 def create_app():

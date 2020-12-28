@@ -1,17 +1,6 @@
 import psycopg2 as dbapi2
 from config import Config
 import sys
-"""
-dsn = #   dbname='Clubee' user='postgres'
-       #  host='localhost' password='95175305Ee'
-
-"""
-"""
-try:
-    conn = psycopg2.connect(dsn)
-except Exception as e:
-    print(e, "   Unable to reacn the database")
-"""
 
 
 def read_sql_from_file(filename):
@@ -31,20 +20,20 @@ def initialize():
                 # drop_statements = read_sql_from_file('drop.sql')
                 # for statement in drop_statements:
                 #     if len(statement) > 5:
-                #         cursor.execute(statement)
+                #         cursor.execute(statement)
                 # print("Drop tables...")
 
-                #create_statements = read_sql_from_file('database.sql')
-                #for statement in create_statements:
-                #    if len(statement) > 5:
-                #        cursor.execute(statement)
-                #print("Create tables...", file=sys.stderr)
+                # create_statements = read_sql_from_file('database.sql')
+                # for statement in create_statements:
+                #     if len(statement) > 5:
+                #         cursor.execute(statement)
+                # print("Create tables...", file=sys.stderr)
 
-                #insert_statements = read_sql_from_file('clubs.sql')
-                #for statement in insert_statements:
-                #    if len(statement) > 5:
-                #        cursor.execute(statement)
-                #print("Inserting into clubs...", file=sys.stderr)
+                # insert_statements = read_sql_from_file('clubs.sql')
+                # for statement in insert_statements:
+                #     if len(statement) > 5:
+                #         cursor.execute(statement)
+                # print("Inserting into clubs...", file=sys.stderr)
 
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
@@ -53,7 +42,7 @@ def initialize():
 if __name__ == "__main__":
     initialize()
 """
-##Should I do commits ??
+##Should I do commits ?? commit as in rollback / commit
 cur = conn.cursor()
 cur.execute(query_drop)
 cur.execute(query_create)

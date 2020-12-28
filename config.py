@@ -9,3 +9,8 @@ class Config(object):
     DEBUG = True
     PORT = 8080
     db_url = dsn
+    PASSWORDS = {
+        "123456789":
+        '$pbkdf2-sha256$29000$kVKKESIEIIQQwpgzptRaaw$tc/vVEpEjE50VNGAUtkT5oiXOEjOVtCP17wHGm9zgHI'
+    }
+    USERS = ["123456789"]

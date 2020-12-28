@@ -52,9 +52,8 @@
                         <li class="nav-item pl-1">
                             <a class="nav-link" href="#"><i class="fa fa-phone fa-fw fa-rotate-180 mr-1"></i>Contact</a>
                         </li>
-                        <li class="nav-item pl-1">
-                            <a class="nav-link" href="#"><i class="fa fa-user-plus fa-fw mr-1"></i>Register</a>
-                        </li>
+
+                        {% if not current_user.is_authenticated %}
                         <li class="nav-item pl-1">
                             <a class="nav-link" href="{{ url_for('login') }}"><i
                                     class="fa fa-sign-in fa-fw mr-1"></i>Login</a>
@@ -65,6 +64,23 @@
                                     class="fas fa-user-cog fa-fw mr-1" ></i>Admin
                                 Login</a>
                         </li>
+
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="#"><i class="fa fa-user-plus fa-fw mr-1"></i>Register</a>
+                        </li>
+
+                        {% else %}
+                        {{ current_user.student_id }}
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('logout') }}"><i class="fa fa-sign-out fa-fw mr-1"
+                                    ></i>Logout</a>
+                        </li>
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('logout') }}"><i class="fa fa-sign-out fa-fw mr-1"
+                                    ></i>MyClubs</a>
+                        </li>
+                        {% endif %}
+
                     </ul>
                 </div>
             </div>
@@ -90,6 +106,9 @@
     </ul>
     {% endif %}
     {% endwith %}
+    {% if current_user.is_admin %}
+    <h4 style="color: blueviolet;">you admin boy</h4>
+    {% endif %}
 
 
     <!--- Footer --->

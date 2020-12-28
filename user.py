@@ -3,13 +3,15 @@ from flask_login import UserMixin
 
 
 class User(UserMixin):
-    def __init__(self,
-                 email=None,
-                 name=None,
-                 surname=None,
-                 student_id,
-                 department=None,
-                 password):
+    def __init__(
+        self,
+        student_id,
+        password,
+        email=None,
+        name=None,
+        surname=None,
+        department=None,
+    ):
         self.email = email
         self.name = name
         self.surname = surname
@@ -20,7 +22,7 @@ class User(UserMixin):
         self.is_admin = False
 
     def get_id(self):
-        return self.username
+        return self.student_id
 
     @property
     def is_active(self):
@@ -31,5 +33,5 @@ def get_user(user_id):
     password = current_app.config["PASSWORDS"].get(user_id)
     user = User(user_id, password) if password else None
     if user is not None:
-        user.is_admin = user.username in current_app.config["ADMIN_USERS"]
+        user.is_admin = False  #user.student_id in current_app.config["ADMIN_USERS"]
     return user

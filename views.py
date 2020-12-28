@@ -1,6 +1,9 @@
 from flask import Flask, render_template, current_app, abort, redirect, request, url_for, flash
 from datetime import datetime
 from forms import LoginForm, AdminLoginForm
+from flask_login import LoginManager, login_user, logout_user
+from user import get_user
+from passlib.hash import pbkdf2_sha256 as hasher
 
 
 def home_page():
@@ -32,11 +35,35 @@ def club_page(club_key):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
+        student_id = form.data["username"]
+        user = get_user(student_id)
+        if user is not None:
+            password = form.data["password"]
+            if hasher.verify(password, user.password):
+                login_user(user)
+                flash("You have logged in.")
+                next_page = request.args.get("next", url_for("home_page"))
+                return redirect(next_page)
+        flash("Invalid credentials.")
+    return render_template("login.html", form=form)
+
+
+"""
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
         flash(
             'Login requested for student with student ID: {}, remember_me={}'.
             format(form.username.data, form.remember_me.data))
         return redirect(url_for('home_page'))
     return render_template('login.html', title='Sign In', form=form)
+"""
+
+
+def logout():
+    logout_user()
+    flash("You have logged out.")
+    return redirect(url_for("home_page"))
 
 
 def admin_login():
@@ -48,3 +75,9 @@ def admin_login():
     return render_template('admin_login.html',
                            title='Sign In as Admin',
                            form=form)
+
+
+def admin_logout():
+    logout_user()
+    flash("You have logged out.")
+    return redirect(url_for("home_page"))

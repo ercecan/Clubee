@@ -95,7 +95,9 @@
 
 
     {%block content%} {%endblock%}
-
+    {% if current_user.is_admin %}
+    <h3>you are admin</h3>
+    {% endif %}
     <hr>
     {% with messages = get_flashed_messages() %}
     {% if messages %}

@@ -42,7 +42,7 @@ class Database:
 
     def get_club(self, club_key):
 
-        query_select_one = "SELECT * FROM clubs WHERE club_id = " + str(
+        query_select_one = "SELECT * FROM clubs WHERE id = " + str(
             club_key) + ";"
         club_ = []
         with self.conn.cursor() as curr:

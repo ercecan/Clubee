@@ -13,4 +13,10 @@ class Config(object):
         "123456789":
         '$pbkdf2-sha256$29000$kVKKESIEIIQQwpgzptRaaw$tc/vVEpEjE50VNGAUtkT5oiXOEjOVtCP17wHGm9zgHI'
     }
+    ADMIN_PASSWORDS = {
+        "erce":
+        '$pbkdf2-sha256$29000$gXDOeY.xlvL.H4Pw3hsDIA$izC3DlUcd4jLAXj4i.cZfv4ejyCUXHiYrONUTBXrXFQ'
+    }
+
     USERS = ["123456789"]
+    ADMIN_USERS = ["erce"]

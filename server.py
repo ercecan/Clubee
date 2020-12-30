@@ -28,16 +28,27 @@ def create_app():
     app.add_url_rule("/clubs/announcements", view_func=views.anns_page)
     app.add_url_rule("/clubs/<int:club_key>", view_func=views.club_page)
     app.add_url_rule("/login", view_func=views.login, methods=["GET", "POST"])
-    app.add_url_rule("/logout", view_func=views.logout, methods=["POST"])
-    app.add_url_rule("/admin-login",
-                     view_func=views.admin_login,
+    app.add_url_rule("/logout",
+                     view_func=views.logout,
                      methods=["GET", "POST"])
-    app.add_url_rule("/admin_logout",
+    app.add_url_rule("/adminlogin",
+                     view_func=views.admin_login,
+                     methods=["POST", "GET"])
+    app.add_url_rule("/adminlogout",
                      view_func=views.admin_logout,
                      methods=["POST"])
+    app.add_url_rule("/adminpage",
+                     view_func=views.admin_page,
+                     methods=["GET", "POST"])
 
     lm.init_app(app)
-    lm.login_view = "login"
+    lm.login_view = "admin_login"
+    """
+    lm.blueprint_login_views = {
+        'login': '/login',
+        'admin_login': '/adminlogin'
+    }
+    """
 
     db = Database()
     """

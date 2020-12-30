@@ -1,0 +1,22 @@
+{%extends "base.html"%} {% block title %}Clubs{% endblock %} {% block content %}
+<ul>
+    <h1>ADMIN PAGE</h1>
+    <li>
+        {% for club in clubs %}
+
+        <a href="{{ url_for('club_page', club_key=club[0]) }}">this is {{club[1]}}</a> <br>
+        <ul>
+            <div class="card mb-3" style="width: 50%;">
+                <img src="../static/images/itu_acm.png" class="card-img-top" alt="..." width="300" height="200">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
+                        additional content. This content is a little bit longer.</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+            </div>
+        </ul>
+        {% endfor %}
+    </li>
+</ul>
+{% endblock %}

@@ -45,6 +45,9 @@ def create_app():
     app.add_url_rule("/register",
                      view_func=views.register,
                      methods=["GET", "POST"])
+    app.add_url_rule("/clubs/<int:club_key>/leave",
+                     view_func=views.leave_club,
+                     methods=["POST"])
 
     lm.init_app(app)
     lm.login_view = "admin_login"

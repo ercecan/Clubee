@@ -145,3 +145,19 @@ def register():
               'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+
+@login_required
+def leave_club(club_id):
+    if not current_user.is_authorized:
+        abort(401)
+    try:
+        with dbapi2.connect(Config.db_url) as connection:
+            with connection.cursor() as cursor:
+                leave_statement = """DELETE FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
+                data = {'user_id': current_user.id, 'club_id': club_id}
+                cursor.execute(leave_statement, data)
+                connection.commit()
+                user_id = cursor.fetchone()[0]
+    except (Exception, dbapi2.Error) as error:
+        print("Error while connecting to PostgreSQL: {}".format(error))

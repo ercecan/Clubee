@@ -1,9 +1,11 @@
 from flask import Flask, render_template, current_app, abort, redirect, request, url_for, flash, session
 from datetime import datetime
-from forms import LoginForm, AdminLoginForm
+from forms import LoginForm, AdminLoginForm, RegistrationForm
 from flask_login import LoginManager, login_user, logout_user, login_required, login_fresh, current_user  #login_fresh returns true if the login is fresh(yeni)
 from user import get_user
 from passlib.hash import pbkdf2_sha256 as hasher
+import psycopg2 as dbapi2
+from user import User
 
 
 def home_page():
@@ -117,3 +119,29 @@ def admin_page():
     db = current_app.config["db"]
     clubs = db.get_clubs()
     return render_template("admin_page.html", clubs=clubs)
+
+
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home_page'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        name = form.data["name"]
+        surname = form.data["surname"]
+        student_id = form.data["student_id"]
+        email = form.data["email"]
+        department = form.data["department"]
+        password = form.data["password"]
+        password_hash = hasher.hash(password)
+        user = User(name=name,
+                    surname=surname,
+                    student_id=student_id,
+                    email=email,
+                    department=department,
+                    password=password_hash)
+        user.adduser()
+        flash('Congratulations, you are now a registered user!')
+        flash(f'Account Created for {student_id}! Now You Can Login.',
+              'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)

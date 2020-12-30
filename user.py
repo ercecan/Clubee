@@ -1,11 +1,14 @@
 from flask import current_app
 from flask_login import UserMixin
+import psycopg2 as dbapi2
+from config import Config
 
 
 class User(UserMixin):
     def __init__(
         self,
         password,
+        id=None,
         nickname=None,
         student_id=None,
         email=None,
@@ -13,6 +16,7 @@ class User(UserMixin):
         surname=None,
         department=None,
     ):
+        self.id = id
         self.email = email
         self.name = name
         self.surname = surname
@@ -29,6 +33,29 @@ class User(UserMixin):
     @property
     def is_active(self):
         return self.active
+
+    def adduser(self):
+        user_data = {
+            'name': self.name,
+            'surname': self.surname,
+            'email': self.email,
+            'student_id': self.student_id,
+            'department': self.department,
+            'password': self.password
+        }
+
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    register_statement = """INSERT INTO users (name, surname, student_id, email, department, password_hash)
+                                                VALUES (%(name)s, %(surname)s, %(student_id)s, %(email)s, %(department)s, %(password)s)
+                                            RETURNING id;"""
+                    cursor.execute(register_statement, user_data)
+                    connection.commit()
+                    user_id = cursor.fetchone()[0]
+        except (Exception, dbapi2.Error) as error:
+
+            print("Error while connecting to PostgreSQL: {}".format(error))
 
 
 def get_user(user_id):

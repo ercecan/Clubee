@@ -10,7 +10,9 @@ lm = LoginManager()
 
 
 @lm.user_loader
-def load_user(user_id):
+def load_user(
+    user_id
+):  ###### burdan if else falan ekleyip ekleyip başka fonksyionlar da kullanabilirsin!!!!
     return get_user(user_id)
 
 
@@ -39,6 +41,9 @@ def create_app():
                      methods=["POST"])
     app.add_url_rule("/adminpage",
                      view_func=views.admin_page,
+                     methods=["GET", "POST"])
+    app.add_url_rule("/register",
+                     view_func=views.register,
                      methods=["GET", "POST"])
 
     lm.init_app(app)

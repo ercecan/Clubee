@@ -18,7 +18,7 @@ name VARCHAR(30) NOT NULL,
 surname VARCHAR(30) NOT NULL, 
 student_id CHAR(9) UNIQUE NOT NULL, 
 department VARCHAR (150) NOT NULL, 
-password_hash CHAR(64) NOT NULL
+password_hash VARCHAR NOT NULL
 );
 
 

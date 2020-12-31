@@ -83,3 +83,19 @@ def get_admin_user(nickname):
             user.is_admin = True  #user.student_id in current_app.config["ADMIN_USERS"]
         return user
 """
+
+
+def is_member(user_id, club_id):
+    try:
+        with dbapi2.connect(Config.db_url) as connection:
+            with connection.cursor() as cursor:
+                check_statement = """SELECT * FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
+                data = {'user_id': user_id, 'club_id': club_id}
+                cursor.execute(leave_statement, data)
+                ##connection.commit() bu lazım mı ?
+                user_id = cursor.fetchone()[0]
+                if user_id:  ##Null değilse yani membersa
+                    return True
+                return False
+    except (Exception, dbapi2.Error) as error:
+        print("Error while connecting to PostgreSQL: {}".format(error))

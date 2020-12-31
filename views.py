@@ -148,16 +148,42 @@ def register():
 
 
 @login_required
+def join_club(club_id):
+    if not current_user.is_authorized:
+        abort(401)
+    try:
+        with dbapi2.connect(Config.db_url) as connection:
+            with connection.cursor() as cursor:
+                if not is_member(current_user.id, club_id):
+                    join_statement = """INSERT INTO members (user_id, club_id) VALUES (%(user_id)s, %(club_id)s);"""
+                    data = {'user_id': current_user.id, 'club_id': club_id}
+                    cursor.execute(leave_statement, data)
+                    ##connection.commit()  bu lazım mı ?
+                    user_id = cursor.fetchone()[0]
+                    update_statement = """UPDATE clubs WHERE id = %(club_id)s SET student_count = student_count + 1;"""
+                    cursor.execute(update_statement, club_id)
+                    connection.commit()
+    except (Exception, dbapi2.Error) as error:
+        print("Error while connecting to PostgreSQL: {}".format(error))
+
+
+@login_required
 def leave_club(club_id):
     if not current_user.is_authorized:
         abort(401)
     try:
         with dbapi2.connect(Config.db_url) as connection:
             with connection.cursor() as cursor:
-                leave_statement = """DELETE FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
-                data = {'user_id': current_user.id, 'club_id': club_id}
-                cursor.execute(leave_statement, data)
-                connection.commit()
-                user_id = cursor.fetchone()[0]
+                if is_member(
+                        current_user.id, club_id
+                ):  ##returns one if the user is actually a member of the club
+                    leave_statement = """DELETE FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
+                    data = {'user_id': current_user.id, 'club_id': club_id}
+                    cursor.execute(leave_statement, data)
+                    ##connection.commit() bu lazım mı ?
+                    user_id = cursor.fetchone()[0]
+                    update_statement = """UPDATE clubs WHERE id = %(club_id)s SET student_count = student_count - 1;"""
+                    cursor.execute(update_statement, club_id)
+                    connection.commit()
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))

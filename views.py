@@ -23,12 +23,12 @@ def clubs_page():
 @login_required
 def myclubs_page():
     if current_user.is_admin:
-        print("as")
+        print("Admins are not allowed")
         abort(404)
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
     db = current_app.config["db"]
-    clubs = db.get_clubs()
+    clubs = db.get_member_clubs()
     return render_template("clubs.html", clubs=clubs)
 
 

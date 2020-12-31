@@ -121,3 +121,30 @@ class Database:
                            image_url=event.image_url)
             events.append((event_key, event_))
         return events
+
+    def get_member_clubs(self, user_id):
+        member_clubs = []
+        get_member_clubs_statement = """ SELECT clubs.id, clubs.name, clubs.description, 
+                                            clubs.history, clubs.student_count, clubs.source, clubs.mission, clubs.vision, clubs.image_url
+                                            FROM clubs, members, users 
+                                            WHERE ((users.id = %{user_id}s) 
+                                            AND (members.club_id = club.id) 
+                                            AND (members.user_id = users.id) ) """
+        data = {'user_id': user_id}
+        with self.conn.cursor() as curr:
+            curr.execute(get_member_clubs_statement)
+            member_clubs = curr.fetchall()
+        return member_clubs
+
+
+"""
+id SERIAL PRIMARY KEY,
+name VARCHAR(100) UNIQUE NOT NULL, 
+description TEXT,
+history TEXT,
+student_count INTEGER DEFAULT 0,
+source VARCHAR, 
+mission TEXT,
+vision TEXT,
+image_url TEXT
+"""

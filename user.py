@@ -59,19 +59,43 @@ class User(UserMixin):
 
 
 def get_user(user_id):
-    print("getuser")
-    password = current_app.config["PASSWORDS"].get(user_id)
-    user = User(student_id=user_id, password=password) if password else None
-    if user is not None:
-        user.is_admin = False  #user.student_id in current_app.config["ADMIN_USERS"]
-        return user
+    try:
+        with dbapi2.connect(Config.db_url) as connection:
+            with connection.cursor() as cursor:
+                _user = []
+                print("getuser")
+                get_user_statement = """SELECT * FROM users WHERE student_id = %(user_id)s"""
+                data = {'user_id': user_id}
+                cursor.execute(get_user_statement, data)
+                _user = cursor.fetchone()
+                user = User(id=_user[0],
+                            email=_user[1],
+                            name=_user[2],
+                            surname=_user[3],
+                            student_id=_user[4],
+                            department=_user[5],
+                            password=_user[6]) if _user[6] else None
+                if _user[0] is not None:
+                    user.is_admin = False  #user.student_id in current_app.config["ADMIN_USERS"]
+                    return user
+                get_admin_statement = """SELECT * FROM admins WHERE id = %(user_id)s"""
+                cursor.execute(get_admin_statement, data)
+                _admin = cursor.fetchone()
+                admin = User(id=_admin[0],
+                             nickname=_admin[1],
+                             password=_admin[2])
+                if _admin[0] is not None:
+                    admin.is_admin = True
+                    return admin
+                return None
+    except (Exception, dbapi2.Error) as error:
+        print("Error while getting user: {}".format(error))
 
-    password = current_app.config["ADMIN_PASSWORDS"].get(user_id)
-    user = User(nickname=user_id, password=password) if password else None
-    if user is not None:
-        user.is_admin = True  #user.student_id in current_app.config["ADMIN_USERS"]
-        return user
-    return None
+    # password = current_app.config["ADMIN_PASSWORDS"].get(user_id)
+    # user = User(nickname=user_id, password=password) if password else None
+    # if user is not None:
+    #     user.is_admin = True  #user.student_id in current_app.config["ADMIN_USERS"]
+    #     return user
 
 
 """

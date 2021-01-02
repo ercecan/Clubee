@@ -44,9 +44,16 @@ def anns_page():  #announcements page
 def club_page(club_key):
     db = current_app.config["db"]
     club = db.get_club(club_key)
+    member = []
     if club is None:
         abort(404)
-    return render_template("club.html", club=club)
+    if current_user.is_authenticated:
+        user_id = current_user.id
+        club_id = club_key
+        if is_member(club_id=club_id, user_id=user_id):
+            member.append(user_id)
+            print(member)
+    return render_template("club.html", club=club, member=member)
 
 
 def login():
@@ -177,7 +184,7 @@ def join_club(
 
 @login_required
 def leave_club(club_id):
-    if not current_user.is_authorized:
+    if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
         with dbapi2.connect(Config.db_url) as connection:
@@ -189,9 +196,12 @@ def leave_club(club_id):
                     data = {'user_id': current_user.id, 'club_id': club_id}
                     cursor.execute(leave_statement, data)
                     ##connection.commit() bu lazım mı ?
-                    user_id = cursor.fetchone()[0]
-                    update_statement = """UPDATE clubs WHERE id = %(club_id)s SET student_count = student_count - 1;"""
-                    cursor.execute(update_statement, club_id)
+                    #user_id = cursor.fetchone()[0]
+                    update_statement = """UPDATE clubs SET student_count = student_count - 1 WHERE id = %(club_id)s;"""
+                    data = {'club_id': club_id}
+                    cursor.execute(update_statement, data)
                     connection.commit()
+                    return redirect(url_for('clubs_page'))
+                return redirect(url_for('clubs_page'))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))

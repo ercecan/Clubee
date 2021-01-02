@@ -122,7 +122,9 @@ class Database:
             events.append((event_key, event_))
         return events
 
-    def get_member_clubs(self, user_id):
+    def get_member_clubs(
+        self, user_id
+    ):  ##member club yoksa farklı bir sayfa yap üye olmaya başla diye ya da clubs_page e redirect
         member_clubs = []
         get_member_clubs_statement = """ SELECT clubs.id, clubs.name, clubs.description, 
                                             clubs.history, clubs.student_count, clubs.source, clubs.mission, clubs.vision, clubs.image_url
@@ -131,7 +133,7 @@ class Database:
             user_id) + """)
                                             AND (members.club_id = clubs.id) 
                                             AND (members.user_id = users.id) ) """
-        data = {'x': user_id}
+        #data = {'x': user_id}
         with self.conn.cursor() as curr:
             curr.execute(get_member_clubs_statement)
             member_clubs = curr.fetchall()

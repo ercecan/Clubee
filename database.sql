@@ -38,7 +38,7 @@ image_url TEXT
 CREATE TABLE club_admins (
 id SERIAL PRIMARY KEY,
 nickname VARCHAR(50) UNIQUE NOT NULL, 
-password_hash CHAR(64) NOT NULL
+password_hash VARCHAR NOT NULL
 );
 
 

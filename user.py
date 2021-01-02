@@ -68,22 +68,24 @@ def get_user(user_id):
                 data = {'user_id': user_id}
                 cursor.execute(get_user_statement, data)
                 _user = cursor.fetchone()
-                user = User(id=_user[0],
-                            email=_user[1],
-                            name=_user[2],
-                            surname=_user[3],
-                            student_id=_user[4],
-                            department=_user[5],
-                            password=_user[6]) if _user[6] else None
-                if _user[0] is not None:
+                if _user:
+                    user = User(id=_user[0],
+                                email=_user[1],
+                                name=_user[2],
+                                surname=_user[3],
+                                student_id=_user[4],
+                                department=_user[5],
+                                password=_user[6]) if _user[6] else None
+                if _user:
                     user.is_admin = False  #user.student_id in current_app.config["ADMIN_USERS"]
                     return user
-                get_admin_statement = """SELECT * FROM admins WHERE id = %(user_id)s"""
+                get_admin_statement = """SELECT * FROM club_admins WHERE nickname = %(user_id)s"""
                 cursor.execute(get_admin_statement, data)
                 _admin = cursor.fetchone()
-                admin = User(id=_admin[0],
-                             nickname=_admin[1],
-                             password=_admin[2])
+                if _admin:
+                    admin = User(id=_admin[0],
+                                 nickname=_admin[1],
+                                 password=_admin[2])
                 if _admin[0] is not None:
                     admin.is_admin = True
                     return admin

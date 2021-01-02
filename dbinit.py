@@ -35,6 +35,12 @@ def initialize():
                 #         cursor.execute(statement)
                 # print("Inserting into clubs...", file=sys.stderr)
 
+                admin_insert_statements = read_sql_from_file('admin.sql')
+                for statement in admin_insert_statements:
+                    if len(statement) > 5:
+                        cursor.execute(statement)
+                print("Inserting into admins...", file=sys.stderr)
+
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
 

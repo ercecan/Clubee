@@ -48,7 +48,7 @@ def create_app():
     app.add_url_rule("/clubs/<int:club_key>/leave",
                      view_func=views.leave_club,
                      methods=["POST"])
-    app.add_url_rule("/clubs/<int:club_key>/join",
+    app.add_url_rule("/clubs/<int:club_id>/join",
                      view_func=views.join_club,
                      methods=["POST"])
 

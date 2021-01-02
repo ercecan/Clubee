@@ -127,10 +127,11 @@ class Database:
         get_member_clubs_statement = """ SELECT clubs.id, clubs.name, clubs.description, 
                                             clubs.history, clubs.student_count, clubs.source, clubs.mission, clubs.vision, clubs.image_url
                                             FROM clubs, members, users 
-                                            WHERE ((users.id = %{user_id}s) 
-                                            AND (members.club_id = club.id) 
+                                            WHERE ( (users.id = """ + str(
+            user_id) + """)
+                                            AND (members.club_id = clubs.id) 
                                             AND (members.user_id = users.id) ) """
-        data = {'user_id': user_id}
+        data = {'x': user_id}
         with self.conn.cursor() as curr:
             curr.execute(get_member_clubs_statement)
             member_clubs = curr.fetchall()

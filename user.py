@@ -117,9 +117,9 @@ def is_member(user_id, club_id):
             with connection.cursor() as cursor:
                 check_statement = """SELECT * FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
                 data = {'user_id': user_id, 'club_id': club_id}
-                cursor.execute(leave_statement, data)
+                cursor.execute(check_statement, data)
                 ##connection.commit() bu lazım mı ?
-                user_id = cursor.fetchone()[0]
+                user_id = cursor.fetchone()
                 if user_id:  ##Null değilse yani membersa
                     return True
                 return False

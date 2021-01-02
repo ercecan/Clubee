@@ -58,6 +58,17 @@ club.name
         <td>{{club[4]}}</td>
     </tr>
 
+    <tr>
+        <th>Click the button to join the club</th>
+
+        <td>
+
+            <form action="{{url_for('join_club', club_id = club[0])}}" method="post">
+                <input type="submit" name="Join">Join</input>
+            </form>
+        </td>
+    </tr>
+
 
 </table>
 {%endblock%}

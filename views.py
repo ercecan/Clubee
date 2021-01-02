@@ -6,6 +6,9 @@ from user import get_user
 from passlib.hash import pbkdf2_sha256 as hasher
 import psycopg2 as dbapi2
 from user import User
+from config import Config
+from database import Database
+from user import is_member
 
 
 def home_page():
@@ -28,7 +31,7 @@ def myclubs_page():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
     db = current_app.config["db"]
-    clubs = db.get_member_clubs()
+    clubs = db.get_member_clubs(user_id=current_user.id, )
     return render_template("clubs.html", clubs=clubs)
 
 
@@ -148,8 +151,10 @@ def register():
 
 
 @login_required
-def join_club(club_id):
-    if not current_user.is_authorized:
+def join_club(
+    club_id
+):  ##club ismiyle selectleyip clubid yi gönder ya da clubs db classı oluştur
+    if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
         with dbapi2.connect(Config.db_url) as connection:
@@ -157,12 +162,15 @@ def join_club(club_id):
                 if not is_member(current_user.id, club_id):
                     join_statement = """INSERT INTO members (user_id, club_id) VALUES (%(user_id)s, %(club_id)s);"""
                     data = {'user_id': current_user.id, 'club_id': club_id}
-                    cursor.execute(leave_statement, data)
+
+                    cursor.execute(join_statement, data)
                     ##connection.commit()  bu lazım mı ?
-                    user_id = cursor.fetchone()[0]
-                    update_statement = """UPDATE clubs WHERE id = %(club_id)s SET student_count = student_count + 1;"""
-                    cursor.execute(update_statement, club_id)
+                    #user_id = cursor.fetchone()
+                    update_statement = """UPDATE clubs  SET student_count = student_count + 1 WHERE id = %(club_id)s;"""
+                    cursor.execute(update_statement, {'club_id': str(club_id)})
                     connection.commit()
+                    return redirect(url_for('clubs_page'))
+                return redirect(url_for('clubs_page'))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
 

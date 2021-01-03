@@ -223,7 +223,12 @@ def announcement_page(club_id, ann_id):
     return render_template("announcement.html", announcement=_announcement)
 
 
+@login_required
 def event_page(club_id, event_id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    if not is_member(club_id=club_id, user_id=current_user.id):
+        return redirect(url_for('clubs_page'))
     db = current_app.config["db"]
     club = db.get_club(club_id)
     _event = []

@@ -50,6 +50,8 @@ club.name
         {% endfor %}
     </tr>
     {% endif %}
+    {% if current_user.is_authenticated%}
+    {% if current_user.id == member[0] %}
     {% if events %}
     <tr>
         <th>events</th>
@@ -61,6 +63,8 @@ club.name
         <td>{{event[3]}}</td>
         {% endfor %}
     </tr>
+    {% endif %}
+    {% endif %}
     {% endif %}
     <!--
     <tr>

@@ -38,6 +38,30 @@ club.name
         <th>Mission:</th>
         <td>{{club[5]}}</td>
     </tr>
+    {% if announcements %}
+    <tr>
+        <th>announcements</th>
+        {% for ann in announcements %}
+        <td><a href="{{url_for('announcement_page',ann_id = ann[0],club_id=ann[1])}}">go to announcement</a></td>
+        <td>{{ann[0]}}</td>
+        <td>{{ann[1]}}</td>
+        <td>{{ann[2]}}</td>
+        <td>{{ann[3]}}</td>
+        {% endfor %}
+    </tr>
+    {% endif %}
+    {% if events %}
+    <tr>
+        <th>events</th>
+        {% for event in events %}
+        <td><a href="{{url_for('event_page',event_id = event[0],club_id=event[1])}}">go to event</a></td>
+        <td>{{event[0]}}</td>
+        <td>{{event[1]}}</td>
+        <td>{{event[2]}}</td>
+        <td>{{event[3]}}</td>
+        {% endfor %}
+    </tr>
+    {% endif %}
     <!--
     <tr>
         <th>Announcements:</th>

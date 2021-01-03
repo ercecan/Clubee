@@ -35,25 +35,30 @@ def myclubs_page():
     return render_template("clubs.html", clubs=clubs)
 
 
-def anns_page():  #announcements page
+def announcements_page():  #announcements page
     db = current_app.config["db"]
-    announcements = db.get_announcements
+    announcements = db.get_announcements()
     return render_template("announcements.html", announcements=announcements)
 
 
-def club_page(club_key):
+def club_page(club_id):
     db = current_app.config["db"]
-    club = db.get_club(club_key)
+    club = db.get_club(club_id)
+    annonucements = db.get_announcements(club_id)
+    events = db.get_events(club_id)
     member = []
     if club is None:
         abort(404)
     if current_user.is_authenticated:
         user_id = current_user.id
-        club_id = club_key
         if is_member(club_id=club_id, user_id=user_id):
             member.append(user_id)
             print(member)
-    return render_template("club.html", club=club, member=member)
+    return render_template("club.html",
+                           club=club,
+                           member=member,
+                           announcements=annonucements,
+                           events=events)
 
 
 def login():
@@ -205,3 +210,59 @@ def leave_club(club_id):
                 return redirect(url_for('clubs_page'))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
+
+
+def announcement_page(club_id, ann_id):
+    db = current_app.config["db"]
+    club = db.get_club(club_id)
+    if club is None:
+        abort(404)
+    _announcement = db.get_announcement(ann_id=ann_id)
+    if _announcement is None:
+        abort(404)
+    return render_template("announcement.html", announcement=_announcement)
+
+
+def event_page(club_id, event_id):
+    db = current_app.config["db"]
+    club = db.get_club(club_id)
+    _event = []
+    if club is None:
+        abort(404)
+        _event = db.get_event(event_id=event_id)
+    if _event is None:
+        abort(404)
+    return render_template("event.html", event=_event)
+
+
+"""
+def event_page():
+"""
+"""
+def comment():
+    form=CommentForm()
+"""
+"""
+@login_required
+def add_announcement():
+"""
+"""
+@login_required
+def edit_announcement():
+"""
+"""
+@login_required
+def delete_announcement():
+"""
+"""
+@login_required
+def add_event():
+"""
+"""
+@login_required
+def edit_event():
+"""
+"""
+@login_required
+def delete_event():
+"""

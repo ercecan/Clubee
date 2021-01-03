@@ -1,6 +1,36 @@
-<!-- create a fake event and comment section under it(just add a simple bootstrap form) -->
-{%extends "base.html"%} {% block title %}Event{% endblock %} {% block
-    content %}
-<h2>Event</h2>
+<!-- create a fake join button and user_count -->
+{%extends "base.html"%}
+{% block title %}
 
+event
+
+{% endblock %}
+
+{% block content %}
+
+
+<table class="table">
+    <tr>
+        <th>Image:</th>
+        <td><img src='{{event[4]}}' height="200" width="200"></td>
+    </tr>
+    <tr>
+        <th>id:</th>
+        <td>{{ event[0] }}</td>
+    </tr>
+
+    <tr>
+        <th>Description:</th>
+        <td>{{  event[1] }}</td>
+    </tr>
+    <tr>
+        <th>History:</th>
+        <td>{{ event[2]}}</td>
+    </tr>
+    <tr>
+        <th>Vision:</th>
+        <td>{{ event[3]}}</td>
+    </tr>
+
+</table>
 {%endblock%}

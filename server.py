@@ -27,8 +27,10 @@ def create_app():
     app.add_url_rule("/home", view_func=views.home_page)
     app.add_url_rule("/clubs", view_func=views.clubs_page)
     app.add_url_rule("/myclubs", view_func=views.myclubs_page)
-    app.add_url_rule("/clubs/announcements", view_func=views.anns_page)
-    app.add_url_rule("/clubs/<int:club_key>", view_func=views.club_page)
+    app.add_url_rule("/announcements",
+                     view_func=views.announcements_page,
+                     methods=["GET"])
+    app.add_url_rule("/clubs/<int:club_id>", view_func=views.club_page)
     app.add_url_rule("/login", view_func=views.login, methods=["GET", "POST"])
     app.add_url_rule("/logout",
                      view_func=views.logout,
@@ -51,6 +53,12 @@ def create_app():
     app.add_url_rule("/clubs/<int:club_id>/join",
                      view_func=views.join_club,
                      methods=["POST"])
+    app.add_url_rule("/clubs/<int:club_id>/announcements/<int:ann_id>",
+                     view_func=views.announcement_page,
+                     methods=["GET"])
+    app.add_url_rule("/clubs/<int:club_id>/events/<int:event_id>",
+                     view_func=views.event_page,
+                     methods=["GET"])
 
     lm.init_app(app)
     lm.login_view = "admin_login"

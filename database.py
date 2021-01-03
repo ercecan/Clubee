@@ -13,10 +13,12 @@ class Database:
         self.club_key = 0
         self.event_key = 0
 
+    """
     def add_club(self, club):
         self.club_key += 1
         self.clubs[self.club_key] = club
         return self.club_key
+    """
 
     def add_announcement(self, announcement):
         self.ann_key += 1
@@ -28,9 +30,11 @@ class Database:
         self.events[self.event_key] = event
         return self.event_key
 
+    """
     def delete_club(self, club_key):
         if club_key in self.clubs:
             del self.clubs[club_key]
+    """
 
     def delete_announcement(self, ann_key):
         if ann_key in self.announcements:
@@ -65,23 +69,35 @@ class Database:
         """
         return club_
 
-    def get_announcement(self, ann_key):
-        announcement = self.announcements.get(ann_key)
-        if announcement is None:
-            return None
-        announcement_ = Announcement(header=announcement.header,
-                                     content=announcement.content,
-                                     image_url=announcement.image_url)
-        return announcement_
+    def get_announcement(self, ann_id):
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    get_ann_statement = """SELECT * FROM announcements WHERE id = %(ann_id)s """
+                    data = {'ann_id': ann_id}
+                    cursor.execute(get_ann_statement, data)
+                    announcement = cursor.fetchone()
+                    if announcement:
+                        return announcement  ##bir announcement arrayi belki sonra obje yaparsın
+                    else:
+                        return None
+        except (Exception, dbapi2.Error) as error:
+            print("Error while getting announcement {}".format(error))
 
-    def get_event(self, ann_key):
-        event = self.events.get(ann_key)
-        if event is None:
-            return None
-        event_ = Event(header=event.header,
-                       content=event.content,
-                       image_url=event.image_url)
-        return event_
+    def get_event(self, event_id):
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
+                    data = {'event_id': event_id}
+                    cursor.execute(get_event_statement, data)
+                    event = cursor.fetchone()
+                    if event:
+                        return event  ##bir event arrayi belki sonra obje yaparsın
+                    else:
+                        return None
+        except (Exception, dbapi2.Error) as error:
+            print("Error while getting announcement {}".format(error))
 
     def get_clubs(self):
         query_select = "SELECT * FROM clubs"
@@ -104,23 +120,49 @@ class Database:
         """
         return clubs
 
-    def get_announcements(self, ann_key):
-        announcements = []
-        for ann_key, announcement in self.announcements.items():
-            announcement_ = Announcement(header=announcement.header,
-                                         content=announcement.content,
-                                         image_url=announcement.image_url)
-            announcements.append((ann_key, announcement_))
-        return announcements
+    def get_announcements(self, club_id=None):
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    if club_id:
+                        get_anns_statement = """ SELECT * FROM announcements WHERE club_id = %(club_id)s;"""
+                        data = {'club_id': club_id}
+                        cursor.execute(get_anns_statement, data)
+                        announcements = cursor.fetchall()
+                        if announcements:
+                            return announcements
+                        return None
+                    else:
+                        get_anns_statement = """ SELECT * FROM announcements"""
+                        cursor.execute(get_anns_statement)
+                        announcements = cursor.fetchall()
+                        if announcements:
+                            return announcements
+                        return None
+        except (Exception, dbapi2.Error) as error:
+            print("Error while getting announcements {}".format(error))
 
-    def get_events(self, ann_key):
-        events = []
-        for event_key, event in self.events.items():
-            event_ = Event(header=event.header,
-                           content=event.content,
-                           image_url=event.image_url)
-            events.append((event_key, event_))
-        return events
+    def get_events(self, club_id=None):
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    if club_id:
+                        get_events_statement = """ SELECT * FROM events WHERE club_id = %(club_id)s;"""
+                        data = {'club_id': club_id}
+                        cursor.execute(get_events_statement, data)
+                        events = cursor.fetchall()
+                        if events:
+                            return events
+                        return None
+                    else:
+                        get_events_statement = """ SELECT * FROM announcements"""
+                        cursor.execute(get_events_statement)
+                        events = cursor.fetchall()
+                        if events:
+                            return events
+                        return None
+        except (Exception, dbapi2.Error) as error:
+            print("Error while getting announcements {}".format(error))
 
     def get_member_clubs(
         self, user_id

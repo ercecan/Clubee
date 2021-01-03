@@ -1,1 +1,234 @@
-<!-- creeate a fake announcement-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+
+    {% if title %}
+    <title>{{ title }} - Clubee</title>
+    {% else %}
+    <title>Clubee</title>
+    {% endif %}
+    <!--bulma kullanıcaksan bootstrap i sil-->
+
+    <!--bootstrap-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!--kendi css lerin buraya gelsin-->
+    <style>
+        .navbar {
+            background-color: #484848;
+        }
+
+        .navbar .navbar-nav .nav-link {
+            color: #fff;
+        }
+
+        .navbar .navbar-nav .nav-link:hover {
+            color: #fbc531;
+        }
+
+        .navbar .navbar-nav .active>.nav-link {
+            color: #fbc531;
+        }
+
+        footer a.text-light:hover {
+            color: #fed136 !important;
+            text-decoration: none;
+        }
+
+        footer .cizgi {
+            border-right: 1px solid #535e67;
+        }
+
+
+        #announcements-header {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+
+        @media (max-width: 992px) {
+            footer .cizgi {
+                border-right: none;
+            }
+        }
+    </style>
+
+    <!-- Icons in footer and navbar-->
+    <script src="https://kit.fontawesome.com/7b80f74f66.js" crossorigin="anonymous"></script>
+</head>
+
+<body style="background-image: url(hex_background.png);">
+    <header>
+        <!--- Navbar --->
+        <nav class="navbar navbar-expand-lg">
+            <!--style="background: rgba(0,0,0,1);"-->
+            <div class="container">
+                <a class="navbar-brand text-white" href="{{ url_for('home_page') }}">
+                    <!-- <i class="fa fa-graduation-cap fa-lg mr-2"></i>--><img src="../static/images/clubee_logo.png"
+                        height="50" width="50">Clubee</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nvbCollapse"
+                    aria-controls="nvbCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="nvbCollapse">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('home_page') }}"><i
+                                    class="fa fa-home fa-fw mr-1"></i>Home</a>
+                        </li>
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('clubs_page') }}"><i
+                                    class="fa fa-th-list fa-fw mr-1"></i>Clubs</a>
+                        </li>
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('announcements_page') }}"><i
+                                    class="fa fa-info-circle fa-fw mr-1"></i>Announcements</a>
+                        </li>
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="#"><i class="fa fa-phone fa-fw fa-rotate-180 mr-1"></i>Contact</a>
+                        </li>
+
+                        {% if not current_user.is_authenticated %}
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('login') }}"><i
+                                    class="fa fa-sign-in fa-fw mr-1"></i>Login</a>
+                        </li>
+
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('admin_login') }}"><i
+                                    class="fas fa-user-cog fa-fw mr-1" ></i>Admin
+                                Login</a>
+                        </li>
+
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('register') }}"><i
+                                    class="fa fa-user-plus fa-fw mr-1"></i>Register</a>
+                        </li>
+
+                        {% else %}
+                        {{ current_user.student_id }}
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('logout') }}"><i class="fa fa-sign-out fa-fw mr-1"
+                                    ></i>Logout</a>
+                        </li>
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('myclubs_page') }}"><i
+                                    class="fa fa-list-alt fa-fw mr-1" ></i>My Clubs</a>
+                        </li>
+                        {% endif %}
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!--# Navbar #-->
+    </header>
+
+    <table class="table">
+        <tr>
+            <th>Image:</th>
+            <td><img src='{{announcement[4]}}' height="200" width="200"></td>
+        </tr>
+        <tr>
+            <th>ann_id:</th>
+            <td>{{ announcement[0] }}</td>
+        </tr>
+
+        <tr>
+            <th>club_id:</th>
+            <td>{{ announcement[1] }}</td>
+        </tr>
+        <tr>
+            <th>Header:</th>
+            <td>{{announcement[2]}}</td>
+        </tr>
+        <tr>
+            <th>Content:</th>
+            <td>{{announcement[3]}}</td>
+        </tr>
+    </table>
+    <!--- Footer --->
+    <footer>
+        <div class="jumbotron jumbotron-fluid bg-secondary p-4 mt-5 mb-0">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4 cizgi">
+                        <div class="card bg-secondary border-0">
+                            <div class="card-body text-light text-center">
+                                <h5 class="card-title text-white display-4" style="font-size:30px">Copy Rights</h5>
+                                <p class="d-inline lead">All Rights Reserved © 2020<br>
+                                    <a href="{{ url_for('home_page') }}" class="text-light d-block lead">Clubee</a>
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 cizgi">
+                        <div class="card bg-secondary border-0">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-white display-4" style="font-size:30px">Contact</h5>
+                                <a class="text-light d-block lead" style="margin-left: -20px" href="#"><i
+                                        class="fa fa-phone mr-2"></i>+90 (000) 000 0 000</a>
+                                <a class="text-light d-block lead" href="#"><i
+                                        class="fa fa-envelope mr-2"></i>erce.test@gmail.com</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                        <div class="card bg-secondary border-0">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-white display-4" style="font-size:30px">Social Media</h5>
+
+                                <a class="text-light" href="#"><i class="fa fa-facebook-square fa-fw fa-2x"></i></a>
+
+                                <a class="text-light" href="#"><i class="fa fa-twitter-square fa-fw fa-2x"></i></a>
+
+                                <a class="text-light" href="#"><i class="fa fa-instagram fa-fw fa-2x"></i></a>
+
+                                <a class="text-light" href="https://www.linkedin.com/in/ercecanbekture/"
+                                    target="_blank"><i class="fa fa-linkedin fa-fw fa-2x"></i></a>
+
+                                <a class="text-light" href="https://github.com/ercecan99" target="_blank"><i
+                                        class="fa fa-github fa-fw fa-2x"></i></a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!--# Footer #-->
+
+
+
+    <!--bootstrap js and jquery links-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"
+        integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js"
+        integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj"
+        crossorigin="anonymous"></script>
+
+
+
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>-->
+</body>
+
+</html>

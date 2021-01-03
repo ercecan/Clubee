@@ -2,11 +2,14 @@
     content %}
 <h2>Announcements</h2>
 <ul>
-    {% for ann in anns %}
+    {% for ann in announcements %}
     <li>
-        {{ ann.name }}<br>
-        {{ ann.header }}<br>
-        {{ ann.description }}
+        <a href="{{ url_for('announcement_page',club_id=ann[1],ann_id=ann[0]) }}">Go to announcement detail</a>
+        {{ ann[0] }}<br>
+        {{ ann[1] }}<br>
+        {{ ann[2] }}<br>
+        {{ ann[3] }}<br>
+        {{ ann[4] }}
     </li>
 
     {% endfor %}

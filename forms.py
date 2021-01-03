@@ -54,3 +54,7 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
     """
+
+
+class CommentForm(FlaskForm):
+    comment = StringField('Comment', validators=[DataRequired(), min])

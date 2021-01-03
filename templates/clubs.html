@@ -4,7 +4,7 @@
     <li>
         {% for club in clubs %}
 
-        <a href="{{ url_for('club_page', club_key=club[0]) }}">this is {{club[1]}}</a> <br>
+        <a href="{{ url_for('club_page', club_id=club[0]) }}">this is {{club[1]}}</a> <br>
         <ul>
             <div class="card mb-3" style="width: 50%;">
                 <img src="../static/images/itu_acm.png" class="card-img-top" alt="..." width="300" height="200">

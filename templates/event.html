@@ -50,21 +50,31 @@ event
 {% if comments %}
 <form action="" method="post" novalidate>
     <table>
-
         {% for comment in comments %}
         {% if current_user.id == comment[2] %}
         <label class="checkbox">
-            <input type="checkbox" />
+            <input type="checkbox" name="comment_name" value="{{comment[0]}}" />
         </label>
         <!--eğer kullanıcının kendi yorumuysa silebilecek-->
         <p>yorumu silebilrsin</p>
         {% endif %}
-        <ul> <textarea>{{comment[3]}}</textarea></ul>
+        <ul>
+            <div
+                style="border: cadetblue; border-radius: 5%; border-style:solid; border-color: lightblue; width: 20%; height:100px; overflow: auto;">
+                <p>{{comment[3]}} </p>
+            </div>
+
+        </ul>
+
 
         {% endfor %}
     </table>
+    <div>
+        <input type="submit" name="delete" class="btn btn-danger" value="Delete">
+    </div>
 
 </form>
+
 {% else %}
 <p>No Comments Made</p>
 {% endif %}

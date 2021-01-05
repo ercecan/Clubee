@@ -20,6 +20,19 @@
 
     <!-- Icons in footer and navbar-->
     <script src="https://kit.fontawesome.com/7b80f74f66.js" crossorigin="anonymous"></script>
+
+    <script>
+        function delete_comment() {
+            const checked = document.querySelectorAll('input[name="comment_name"]:checked');
+            if (checked)
+                console.log(checked)
+            else
+                console.log("null")
+            //fetch('/deletecomment', { body: checked, method: 'POST' })
+            //    .then(response => response.json())
+        }
+    </script>
+
 </head>
 
 <body style="background-image: url(../static/images/hex_background.png);">

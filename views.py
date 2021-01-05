@@ -11,6 +11,7 @@ from database import Database
 from user import is_member
 from datetime import datetime
 from models import Announcement, Event
+from flask import Response
 
 
 def home_page():
@@ -240,30 +241,61 @@ def announcement_page(club_id, ann_id):
     return render_template("announcement.html", announcement=_announcement)
 
 
+###burda task="" versen
+#sonra if task == ""
+#geteventpage
+#      if task == "comment"
+#url_for(event_page,task="comment")
+
+
 @login_required
 def event_page(club_id, event_id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login_page'))
+    if not is_member(club_id=club_id, user_id=current_user.id):
+        return redirect(url_for('clubs_page'))
     if request.method == "GET":
-        if not current_user.is_authenticated:
-            return redirect(url_for('login'))
-        if not is_member(club_id=club_id, user_id=current_user.id):
-            return redirect(url_for('clubs_page'))
-        db = current_app.config["db"]
-        club = db.get_club(club_id)
-        _event = []
-        if club is None:
-            abort(404)
-        if _event is None:
-            abort(404)
-        _event, _comment = db.get_event(event_id=event_id)
-        form = CommentForm()
-        return render_template("event.html",
-                               form=form,
-                               event=_event,
-                               comments=_comment)
+        if True:  #task == "get"
+            db = current_app.config["db"]
+            club = db.get_club(club_id)
+            _event = []
+            if club is None:
+                abort(404)
+            if _event is None:
+                abort(404)
+            _event, _comment = db.get_event(event_id=event_id)
+            form = CommentForm()
+            return render_template("event.html",
+                                   form=form,
+                                   event=_event,
+                                   comments=_comment)
     elif request.method == "POST":
-
-        if not current_user.is_authenticated:
-            return redirect(url_for('login_page'))
+        if 'delete' in request.form:  #task=="delete"
+            print("a")
+            form_comments = request.form.getlist("comment_name")
+            if not len(form_comments):
+                flash('You have not selected any comments')
+                return redirect(
+                    url_for('event_page', club_id=club_id, event_id=event_id))
+            try:
+                with dbapi2.connect(Config.db_url) as connection:
+                    with connection.cursor() as cursor:
+                        del_comment_statement = """DELETE FROM comments WHERE id IN ("""
+                        query = ""
+                        for comment_id in form_comments:
+                            query += str(comment_id) + ","
+                        query = query[0:len(query) - 1]
+                        query += ")"
+                        del_comment_statement += query
+                        cursor.execute(del_comment_statement)
+                        connection.commit()
+                        flash('Your selected comment(s) have been deleted')
+                        return redirect(
+                            url_for('event_page',
+                                    club_id=club_id,
+                                    event_id=event_id))
+            except (Exception, dbapi2.Error) as error:
+                print("Error while connecting to PostgreSQL: {}".format(error))
         form = CommentForm()
         if form.validate_on_submit():
             content = form.data["content"]
@@ -284,6 +316,7 @@ def event_page(club_id, event_id):
                         # cursor.execute(get_event_statement, data)
                         # _event = cursor.fetchone()
                         connection.commit()
+                        flash('Your comment has been posted')
                         #comment_id = cursor.fetchone()[0]
                         return redirect(
                             url_for('event_page',
@@ -291,14 +324,9 @@ def event_page(club_id, event_id):
                                     event_id=event_id))
             except (Exception, dbapi2.Error) as error:
                 print("Error while connecting to PostgreSQL: {}".format(error))
-            flash('Your comment has been posted')
+        else:
             return redirect(
                 url_for('event_page', club_id=club_id, event_id=event_id))
-        else:
-            return redirect(url_for('clubs_page'))
-        # elif task == "del":
-        #     return redirect(url_for('home_page.html'))
-
     else:
         abort(405)  #Method not allowed
 

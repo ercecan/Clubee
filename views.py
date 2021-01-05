@@ -131,6 +131,7 @@ def admin_page():  #announcement ve event sayısını bastır
         return current_app.login_manager.unauthorized()
     if not current_user.is_admin:
         abort(401)
+    evs_ans = None
     get_admin_info_statement = """SELECT * FROM announcements, events WHERE events.club_id = 
                 (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
         current_user.id)
@@ -142,11 +143,14 @@ def admin_page():  #announcement ve event sayısını bastır
                 return render_template('admin_page.html', evs_ans=evs_ans)
     except (Exception, dbapi2.Error) as error:
         print("Error while getting admin page: {}".format(error))
+    return render_template('admin_page.html', evs_ans=evs_ans)
+    """
     db = current_app.config["db"]
     clubs = db.get_clubs()
     return render_template("admin_page.html",
                            events=events,
                            announcements=announcements)
+    """
 
 
 def register():
@@ -237,7 +241,7 @@ def announcement_page(club_id, ann_id):
 
 
 @login_required
-def event_page(club_id, event_id, task=None):
+def event_page(club_id, event_id):
     if request.method == "GET":
         if not current_user.is_authenticated:
             return redirect(url_for('login'))
@@ -257,44 +261,43 @@ def event_page(club_id, event_id, task=None):
                                event=_event,
                                comments=_comment)
     elif request.method == "POST":
-        if task == None:
-            if not current_user.is_authenticated:
-                return redirect(url_for('login_page'))
-            form = CommentForm()
-            if form.validate_on_submit():
-                content = form.data["content"]
-                comment_data = {
-                    'event_id': event_id,
-                    'user_id': current_user.id,
-                    'content': content,
-                    'created_at': datetime.now()
-                }
-                try:
-                    with dbapi2.connect(Config.db_url) as connection:
-                        with connection.cursor() as cursor:
-                            add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at) 
-                                                        VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""
-                            cursor.execute(add_comment_statement, comment_data)
-                            # get_event_statement = """SELECT * FROM events where event_id = %(event_id)i"""
-                            # data = {'event_id': event_id}
-                            # cursor.execute(get_event_statement, data)
-                            # _event = cursor.fetchone()
-                            connection.commit()
-                            #comment_id = cursor.fetchone()[0]
-                            return redirect(
-                                url_for('event_page',
-                                        club_id=club_id,
-                                        event_id=event_id))
-                except (Exception, dbapi2.Error) as error:
-                    print("Error while connecting to PostgreSQL: {}".format(
-                        error))
-                flash('Your comment has been posted')
-                return redirect(
-                    url_for('event_page', club_id=club_id, event_id=event_id))
-            else:
-                return redirect(url_for('clubs_page'))
-        elif task == "del":
-            return redirect(url_for('home_page.html'))
+
+        if not current_user.is_authenticated:
+            return redirect(url_for('login_page'))
+        form = CommentForm()
+        if form.validate_on_submit():
+            content = form.data["content"]
+            comment_data = {
+                'event_id': event_id,
+                'user_id': current_user.id,
+                'content': content,
+                'created_at': datetime.now()
+            }
+            try:
+                with dbapi2.connect(Config.db_url) as connection:
+                    with connection.cursor() as cursor:
+                        add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at) 
+                                                    VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""
+                        cursor.execute(add_comment_statement, comment_data)
+                        # get_event_statement = """SELECT * FROM events where event_id = %(event_id)i"""
+                        # data = {'event_id': event_id}
+                        # cursor.execute(get_event_statement, data)
+                        # _event = cursor.fetchone()
+                        connection.commit()
+                        #comment_id = cursor.fetchone()[0]
+                        return redirect(
+                            url_for('event_page',
+                                    club_id=club_id,
+                                    event_id=event_id))
+            except (Exception, dbapi2.Error) as error:
+                print("Error while connecting to PostgreSQL: {}".format(error))
+            flash('Your comment has been posted')
+            return redirect(
+                url_for('event_page', club_id=club_id, event_id=event_id))
+        else:
+            return redirect(url_for('clubs_page'))
+        # elif task == "del":
+        #     return redirect(url_for('home_page.html'))
 
     else:
         abort(405)  #Method not allowed
@@ -348,6 +351,30 @@ def add_announcement_page():
         flash('announcement added to the database')
         return redirect(url_for("admin_page"))
     return render_template("ann_add.html", form=form)
+
+
+def edit_announcement_page(ann_id):
+
+    if not current_user.is_authenticated:
+        return redirect(url_for('admin_login'))
+    if not current_user.is_admin:
+        return redirect(url_for('admin_login'))
+    form = AnnouncementForm()
+    db = current_app.config["db"]
+    announcement = db.get_announcement(ann_id)
+    if form.validate_on_submit():
+        header = form.data["header"]
+        content = form.data["content"]
+        image = form.data["image"]
+        _announcement = Announcement(header=header,
+                                     content=content,
+                                     image=image)
+        db.update_announcement(ann_id=ann_id, announcement=_announcement)
+        return redirect(url_for("admin_page"))
+    form.header.data = announcement[2]
+    form.content.data = announcement[3]
+    form.image.data = announcement[4]
+    return render_template("ann_edit.html", form=form)
 
 
 """

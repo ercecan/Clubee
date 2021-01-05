@@ -36,6 +36,25 @@ class Database:
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcement {}".format(error))
 
+    #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
+    def update_announcement(self, ann_id, announcement):
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    update_statement = """UPDATE announcements SET 
+                    header = %(ah)s, content = %(ac)s, image_url = %(ai)s 
+                    WHERE id = """ + str(ann_id)
+                    data = {
+                        'ah': announcement.header,
+                        'ac': announcement.content,
+                        'ai': announcement.image
+                    }
+                    cursor.execute(update_statement, data)
+                    connection.commit()
+                    print(id)
+        except (Exception, dbapi2.Error) as error:
+            print("Error while getting announcement {}".format(error))
+
     def add_event(self, event):
         self.event_key += 1
         self.events[self.event_key] = event

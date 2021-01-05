@@ -1,12 +1,14 @@
 {%extends "base.html"%} {% block title %}Admin Page{% endblock %} {% block content %}
 <h2>ADMIN PAGE</h2>
 <h4><a href="{{url_for('add_announcement_page')}}">Add Announcement</a></h4>
+{% if evs_ans %}
+
 <ul>
 
     {% set i = 0 %}
     {% for evan in evs_ans %}
     {% set i = i + 1 %}
-
+    <h5><a href="{{url_for('edit_announcement_page',ann_id=evan[0])}}">Edit Announcement</a></h5>
     <h3>Announcement {{i}} </h3>
 
     <li>{{evan[0]}}</li>
@@ -37,7 +39,7 @@
     {% endfor %}
 
 </ul>
-
+{% endif %}
 
 
 {% endblock %}

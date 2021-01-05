@@ -58,7 +58,15 @@ def create_app():
                      methods=["GET"])
     app.add_url_rule("/clubs/<int:club_id>/events/<int:event_id>",
                      view_func=views.event_page,
-                     methods=["GET"])
+                     methods=["GET", "POST"])
+    app.add_url_rule("/adminpage/addannouncement",
+                     view_func=views.add_announcement_page,
+                     methods=["GET", "POST"])
+    """
+    app.add_url_rule("/clubs/<int:club_id>/events/<int:event_id>/comment",
+                     view_func=views.comment,
+                     methods=["POST"])
+    """
 
     lm.init_app(app)
     lm.login_view = "admin_login"

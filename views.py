@@ -1,6 +1,6 @@
 from flask import Flask, render_template, current_app, abort, redirect, request, url_for, flash, session
 from datetime import datetime
-from forms import LoginForm, AdminLoginForm, RegistrationForm
+from forms import LoginForm, AdminLoginForm, RegistrationForm, CommentForm, AnnouncementForm
 from flask_login import LoginManager, login_user, logout_user, login_required, login_fresh, current_user  #login_fresh returns true if the login is fresh(yeni)
 from user import get_user
 from passlib.hash import pbkdf2_sha256 as hasher
@@ -9,6 +9,8 @@ from user import User
 from config import Config
 from database import Database
 from user import is_member
+from datetime import datetime
+from models import Announcement
 
 
 def home_page():
@@ -123,17 +125,28 @@ def admin_logout():
 
 
 @login_required
-def admin_page():
-    if not current_user.is_admin:
-        abort(401)
+def admin_page():  #announcement ve event sayısını bastır
     if not current_user.is_authenticated:
         abort(401)
         return current_app.login_manager.unauthorized()
     if not current_user.is_admin:
         abort(401)
+    get_admin_info_statement = """SELECT * FROM announcements, events WHERE events.club_id = 
+                (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
+        current_user.id)
+    try:
+        with dbapi2.connect(Config.db_url) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(get_admin_info_statement)
+                evs_ans = cursor.fetchall()
+                return render_template('admin_page.html', evs_ans=evs_ans)
+    except (Exception, dbapi2.Error) as error:
+        print("Error while getting admin page: {}".format(error))
     db = current_app.config["db"]
     clubs = db.get_clubs()
-    return render_template("admin_page.html", clubs=clubs)
+    return render_template("admin_page.html",
+                           events=events,
+                           announcements=announcements)
 
 
 def register():
@@ -224,33 +237,119 @@ def announcement_page(club_id, ann_id):
 
 
 @login_required
-def event_page(club_id, event_id):
-    if not current_user.is_authenticated:
-        return redirect(url_for('login'))
-    if not is_member(club_id=club_id, user_id=current_user.id):
-        return redirect(url_for('clubs_page'))
-    db = current_app.config["db"]
-    club = db.get_club(club_id)
-    _event = []
-    if club is None:
-        abort(404)
-        _event = db.get_event(event_id=event_id)
-    if _event is None:
-        abort(404)
-    return render_template("event.html", event=_event)
+def event_page(club_id, event_id, task=None):
+    if request.method == "GET":
+        if not current_user.is_authenticated:
+            return redirect(url_for('login'))
+        if not is_member(club_id=club_id, user_id=current_user.id):
+            return redirect(url_for('clubs_page'))
+        db = current_app.config["db"]
+        club = db.get_club(club_id)
+        _event = []
+        if club is None:
+            abort(404)
+        if _event is None:
+            abort(404)
+        _event, _comment = db.get_event(event_id=event_id)
+        form = CommentForm()
+        return render_template("event.html",
+                               form=form,
+                               event=_event,
+                               comments=_comment)
+    elif request.method == "POST":
+        if task == None:
+            if not current_user.is_authenticated:
+                return redirect(url_for('login_page'))
+            form = CommentForm()
+            if form.validate_on_submit():
+                content = form.data["content"]
+                comment_data = {
+                    'event_id': event_id,
+                    'user_id': current_user.id,
+                    'content': content,
+                    'created_at': datetime.now()
+                }
+                try:
+                    with dbapi2.connect(Config.db_url) as connection:
+                        with connection.cursor() as cursor:
+                            add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at) 
+                                                        VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""
+                            cursor.execute(add_comment_statement, comment_data)
+                            # get_event_statement = """SELECT * FROM events where event_id = %(event_id)i"""
+                            # data = {'event_id': event_id}
+                            # cursor.execute(get_event_statement, data)
+                            # _event = cursor.fetchone()
+                            connection.commit()
+                            #comment_id = cursor.fetchone()[0]
+                            return redirect(
+                                url_for('event_page',
+                                        club_id=club_id,
+                                        event_id=event_id))
+                except (Exception, dbapi2.Error) as error:
+                    print("Error while connecting to PostgreSQL: {}".format(
+                        error))
+                flash('Your comment has been posted')
+                return redirect(
+                    url_for('event_page', club_id=club_id, event_id=event_id))
+            else:
+                return redirect(url_for('clubs_page'))
+        elif task == "del":
+            return redirect(url_for('home_page.html'))
+
+    else:
+        abort(405)  #Method not allowed
 
 
-"""
-def event_page():
-"""
-"""
-def comment():
-    form=CommentForm()
-"""
-"""
+# def comment(user_id, event_id):
+#     if not current_user.is_authenticated:
+#         return redirect(url_for('login_page'))
+#     form = CommentForm()
+#     if form.validate_on_submit():
+#         content = form.data["content"]
+#         comment_data = {
+#             'event_id': event_id,
+#             'user_id': user_id,
+#             'content': content,
+#             'created_at': datetime.now()
+#         }
+#         try:
+#             with dbapi2.connect(Config.db_url) as connection:
+#                 with connection.cursor() as cursor:
+#                     add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at)
+#                                                 VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""
+#                     cursor.execute(add_comment_statement, comment_data)
+#                     get_event_statement = """SELECT * FROM events where event_id = %(event_id)s"""
+#                     _event = cursor.fetchone()
+#                     connection.commit()
+#                     #comment_id = cursor.fetchone()[0]
+#                     return render_template('event.html', event=_event)
+#         except (Exception, dbapi2.Error) as error:
+#             print("Error while connecting to PostgreSQL: {}".format(error))
+#         flash('Your comment has been posted')
+#         return redirect(url_for('login'))
+#     else:
+#         return redirect(url_for('clubs_page'))
+
+
 @login_required
-def add_announcement():
-"""
+def add_announcement_page():
+    if not current_user.is_authenticated:
+        return redirect(url_for('admin_login'))
+    if not current_user.is_admin:
+        return redirect(url_for('admin_login'))
+    form = AnnouncementForm()
+    if form.validate_on_submit():
+        header = form.data["header"]
+        content = form.data["content"]
+        image = form.data["image"]
+        ann = Announcement(header, content, image)
+        db = current_app.config["db"]
+        db.add_announcement(ann, current_user.id)
+        flash('announcement added to the database')
+        return redirect(url_for("admin_page"))
+    return render_template("ann_add.html", form=form)
+
+
 """
 @login_required
 def edit_announcement():

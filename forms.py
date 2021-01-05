@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from user import get_user
 from flask import g
+from datetime import datetime
 
 
 class LoginForm(FlaskForm):
@@ -57,4 +58,14 @@ class RegistrationForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
-    comment = StringField('Comment', validators=[DataRequired(), min])
+    content = TextAreaField(
+        'Comment', validators=[Length(min=0, max=140),
+                               DataRequired()])
+    submit = SubmitField('Post comment')
+
+
+class AnnouncementForm(FlaskForm):  ##for editing and adding
+    header = StringField("Header", validators=[DataRequired()])
+    content = StringField("Content", validators=[DataRequired()])
+    image = StringField("Image", validators=[Optional()])
+    submit = SubmitField('Add Announcement')

@@ -1,22 +1,43 @@
-{%extends "base.html"%} {% block title %}Clubs{% endblock %} {% block content %}
+{%extends "base.html"%} {% block title %}Admin Page{% endblock %} {% block content %}
+<h2>ADMIN PAGE</h2>
+<h4><a href="{{url_for('add_announcement_page')}}">Add Announcement</a></h4>
 <ul>
-    <h1>ADMIN PAGE</h1>
-    <li>
-        {% for club in clubs %}
 
-        <a href="{{ url_for('club_page', club_key=club[0]) }}">this is {{club[1]}}</a> <br>
-        <ul>
-            <div class="card mb-3" style="width: 50%;">
-                <img src="../static/images/itu_acm.png" class="card-img-top" alt="..." width="300" height="200">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                        additional content. This content is a little bit longer.</p>
-                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                </div>
-            </div>
-        </ul>
-        {% endfor %}
-    </li>
+    {% set i = 0 %}
+    {% for evan in evs_ans %}
+    {% set i = i + 1 %}
+
+    <h3>Announcement {{i}} </h3>
+
+    <li>{{evan[0]}}</li>
+    <li>{{evan[1]}}</li>
+    <li>{{evan[2]}}</li>
+    <li>{{evan[3]}}</li>
+    <li>{{evan[4]}}</li>
+
+    {% endfor %}
+
 </ul>
+
+
+<ul>
+
+    {% set i = 0 %}
+    {% for evan in evs_ans %}
+    {% set i = i + 1 %}
+
+    <h3>Event {{i}} </h3>
+    <li>{{evan[5]}}</li>
+    <li>{{evan[6]}}</li>
+    <li>{{evan[7]}}</li>
+    <li>{{evan[8]}}</li>
+    <li>{{evan[9]}}</li>
+    <li>{{evan[10]}}</li>
+
+    {% endfor %}
+
+</ul>
+
+
+
 {% endblock %}

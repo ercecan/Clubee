@@ -33,4 +33,46 @@ event
     </tr>
 
 </table>
+
+<h1>Leave a comment about the event!</h1>
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.content.label }}<br>
+        {{ form.content(cols=50, rows=4) }}
+        {% for error in form.content.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+
+{% if comments %}
+<form action="" method="post" novalidate>
+    <table>
+
+        {% for comment in comments %}
+        {% if current_user.id == comment[2] %}
+        <label class="checkbox">
+            <input type="checkbox" />
+        </label>
+        <!--eğer kullanıcının kendi yorumuysa silebilecek-->
+        <p>yorumu silebilrsin</p>
+        {% endif %}
+        <ul> <textarea>{{comment[3]}}</textarea></ul>
+
+        {% endfor %}
+    </table>
+    <!--
+    <div class="field is-grouped">
+        <div class="control">
+            <button onclick="{{url_for('event_page'),event_id=even[0],club_id=event[1],task='del'}}"
+                class="button is-danger is-small">Delete</button>
+        </div>
+    </div>
+    -->
+</form>
+{% else %}
+<p>No Comments Made</p>
+{% endif %}
 {%endblock%}

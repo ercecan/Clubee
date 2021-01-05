@@ -24,10 +24,10 @@ class Club:
 
 
 class Announcement:
-    def __init__(self, header, content, image_url):
+    def __init__(self, header, content, image):
         self.header = header
         self.content = content
-        self.image_url = image_url
+        self.image = image
 
 
 class Event:

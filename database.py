@@ -20,10 +20,21 @@ class Database:
         return self.club_key
     """
 
-    def add_announcement(self, announcement):
-        self.ann_key += 1
-        self.announcements[self.ann_key] = announcement
-        return self.ann_key
+    def add_announcement(self, announcement, id):
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    add_ann_statement = """INSERT INTO announcements (club_id,header,content,image_url) 
+                    VALUES ((select club_id from club_managers where admin_id = %(id)s),%(ah)s,%(ac)s,%(ai)s); """
+                    data = {
+                        'id': id,
+                        'ah': announcement.header,
+                        'ac': announcement.content,
+                        'ai': announcement.image
+                    }
+                    cursor.execute(add_ann_statement, data)
+        except (Exception, dbapi2.Error) as error:
+            print("Error while getting announcement {}".format(error))
 
     def add_event(self, event):
         self.event_key += 1
@@ -92,8 +103,14 @@ class Database:
                     data = {'event_id': event_id}
                     cursor.execute(get_event_statement, data)
                     event = cursor.fetchone()
+                    get_comment_statement = """SELECT * FROM comments WHERE event_id = %(event_id)s """
+                    cursor.execute(get_comment_statement, data)
+                    comments = cursor.fetchall()
+                    if comments:
+                        return event, comments
                     if event:
-                        return event  ##bir event arrayi belki sonra obje yaparsın
+                        comments = None
+                        return event, comments  ##bir event arrayi belki sonra obje yaparsın
                     else:
                         return None
         except (Exception, dbapi2.Error) as error:

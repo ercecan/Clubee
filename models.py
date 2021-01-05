@@ -31,7 +31,8 @@ class Announcement:
 
 
 class Event:
-    def __init__(self, header, content, image_url):
+    def __init__(self, header, content, image, date):
         self.header = header
         self.content = content
-        self.image_url = image_url
+        self.image = image
+        self.date = date

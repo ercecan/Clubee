@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from user import get_user
 from flask import g
 from datetime import datetime
+from wtforms.fields.html5 import DateField
 
 
 class LoginForm(FlaskForm):
@@ -68,4 +69,12 @@ class AnnouncementForm(FlaskForm):  ##for editing and adding
     header = StringField("Header", validators=[DataRequired()])
     content = StringField("Content", validators=[DataRequired()])
     image = StringField("Image", validators=[Optional()])
-    submit = SubmitField('Add Announcement')
+    submit = SubmitField('Save Announcement')
+
+
+class EventForm(FlaskForm):  ##for editing and adding
+    header = StringField("Header", validators=[DataRequired()])
+    content = StringField("Content", validators=[DataRequired()])
+    image = StringField("Image", validators=[Optional()])
+    date = DateField("Event Date", format='%Y-%m-%d')  #optional or required?
+    submit = SubmitField('Save Event')

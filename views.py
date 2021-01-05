@@ -1,6 +1,6 @@
 from flask import Flask, render_template, current_app, abort, redirect, request, url_for, flash, session
 from datetime import datetime
-from forms import LoginForm, AdminLoginForm, RegistrationForm, CommentForm, AnnouncementForm
+from forms import LoginForm, AdminLoginForm, RegistrationForm, CommentForm, AnnouncementForm, EventForm
 from flask_login import LoginManager, login_user, logout_user, login_required, login_fresh, current_user  #login_fresh returns true if the login is fresh(yeni)
 from user import get_user
 from passlib.hash import pbkdf2_sha256 as hasher
@@ -10,7 +10,7 @@ from config import Config
 from database import Database
 from user import is_member
 from datetime import datetime
-from models import Announcement
+from models import Announcement, Event
 
 
 def home_page():
@@ -353,6 +353,7 @@ def add_announcement_page():
     return render_template("ann_add.html", form=form)
 
 
+@login_required
 def edit_announcement_page(ann_id):
 
     if not current_user.is_authenticated:
@@ -375,6 +376,55 @@ def edit_announcement_page(ann_id):
     form.content.data = announcement[3]
     form.image.data = announcement[4]
     return render_template("ann_edit.html", form=form)
+
+
+@login_required
+def add_event_page():
+    if not current_user.is_authenticated:
+        return redirect(url_for('admin_login'))
+    if not current_user.is_admin:
+        return redirect(url_for('admin_login'))
+    form = EventForm()
+    if form.validate_on_submit():
+        header = form.data["header"]
+        content = form.data["content"]
+        image = form.data["image"]
+        date = form.data["date"]
+        event = Event(header=header, content=content, date=date, image=image)
+        db = current_app.config["db"]
+        db.add_event(event, current_user.id)
+        flash('event added to the database')
+        return redirect(url_for("admin_page"))
+    return render_template("event_add.html", form=form)
+
+
+@login_required
+def edit_event_page(event_id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('admin_login'))
+    if not current_user.is_admin:
+        return redirect(url_for('admin_login'))
+    try:
+        form = EventForm()
+        db = current_app.config["db"]
+        event = db.get_event_info(event_id)
+        if form.validate_on_submit():
+            header = form.data["header"]
+            content = form.data["content"]
+            image = form.data["image"]
+            date = form.data["date"]
+            _event = Event(header=header,
+                           content=content,
+                           date=date,
+                           image=image)
+            db.update_event(event_id=event_id, event=_event)
+            return redirect(url_for("admin_page"))
+        form.header.data = event[2]
+        form.content.data = event[3]
+        form.image.data = event[4]
+        return render_template("event_edit.html", form=form)
+    except Exception as e:
+        print(e)
 
 
 """

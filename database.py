@@ -34,7 +34,7 @@ class Database:
                     }
                     cursor.execute(add_ann_statement, data)
         except (Exception, dbapi2.Error) as error:
-            print("Error while getting announcement {}".format(error))
+            print("Error while adding announcement: {}".format(error))
 
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
     def update_announcement(self, ann_id, announcement):
@@ -53,12 +53,44 @@ class Database:
                     connection.commit()
                     print(id)
         except (Exception, dbapi2.Error) as error:
-            print("Error while getting announcement {}".format(error))
+            print("Error while updating announcement: {}".format(error))
 
-    def add_event(self, event):
-        self.event_key += 1
-        self.events[self.event_key] = event
-        return self.event_key
+    def add_event(self, event, id):  ####FIX IAMGE_URL TYPO
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    add_event_statement = """INSERT INTO events (club_id, header, content,date_, iamge_url) 
+                    VALUES ((select club_id from club_managers where admin_id = %(id)s),%(eh)s,%(ec)s,%(ed)s,%(ei)s); """
+                    data = {
+                        'id': id,
+                        'eh': event.header,
+                        'ec': event.content,
+                        'ed': event.date,
+                        'ei': event.image
+                    }
+                    cursor.execute(add_event_statement, data)
+                    print("a")
+        except (Exception, dbapi2.Error) as error:
+            print("Error while adding event: {}".format(error))
+
+    #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
+    def update_event(self, event_id, event):  ####FIX IAMGE_URL TYPO
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    update_statement = """UPDATE events SET 
+                    header = %(eh)s, content = %(ec)s, date_ = %(ed)s, iamge_url = %(ei)s 
+                    WHERE id = """ + str(event_id)
+                    data = {
+                        'eh': event.header,
+                        'ec': event.content,
+                        'ed': event.date,
+                        'ei': event.image
+                    }
+                    cursor.execute(update_statement, data)
+                    connection.commit()
+        except (Exception, dbapi2.Error) as error:
+            print("Error while updating event: {}".format(error))
 
     """
     def delete_club(self, club_key):
@@ -130,6 +162,21 @@ class Database:
                     if event:
                         comments = None
                         return event, comments  ##bir event arrayi belki sonra obje yaparsın
+                    else:
+                        return None
+        except (Exception, dbapi2.Error) as error:
+            print("Error while getting announcement {}".format(error))
+
+    def get_event_info(self, event_id):
+        try:
+            with dbapi2.connect(Config.db_url) as connection:
+                with connection.cursor() as cursor:
+                    get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
+                    data = {'event_id': event_id}
+                    cursor.execute(get_event_statement, data)
+                    event = cursor.fetchone()
+                    if event:
+                        return event  ##bir event arrayi belki sonra obje yaparsın
                     else:
                         return None
         except (Exception, dbapi2.Error) as error:

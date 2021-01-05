@@ -65,6 +65,12 @@ def create_app():
     app.add_url_rule("/adminpage/editannouncement/<int:ann_id>",
                      view_func=views.edit_announcement_page,
                      methods=["GET", "POST"])
+    app.add_url_rule("/adminpage/addevent",
+                     view_func=views.add_event_page,
+                     methods=["GET", "POST"])
+    app.add_url_rule("/adminpage/editevent/<int:event_id>",
+                     view_func=views.edit_event_page,
+                     methods=["GET", "POST"])
     """
     app.add_url_rule("/clubs/<int:club_id>/events/<int:event_id>/comment",
                      view_func=views.comment,

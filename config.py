@@ -2,7 +2,6 @@ import os
 
 heroku_url = os.environ.get("DATABASE_URL")
 dsn = heroku_url
-psycopg2.connect(heroku_url, sslmode='require')
 
 
 class Config(object):

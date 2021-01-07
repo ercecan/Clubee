@@ -22,7 +22,8 @@ class Database:
 
     def add_announcement(self, announcement, id):
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     add_ann_statement = """INSERT INTO announcements (club_id,header,content,image_url) 
                     VALUES ((select club_id from club_managers where admin_id = %(id)s),%(ah)s,%(ac)s,%(ai)s); """
@@ -39,7 +40,8 @@ class Database:
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
     def update_announcement(self, ann_id, announcement):
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     update_statement = """UPDATE announcements SET 
                     header = %(ah)s, content = %(ac)s, image_url = %(ai)s 
@@ -57,7 +59,8 @@ class Database:
 
     def add_event(self, event, id):  ####FIX IAMGE_URL TYPO
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     add_event_statement = """INSERT INTO events (club_id, header, content,date_, iamge_url) 
                     VALUES ((select club_id from club_managers where admin_id = %(id)s),%(eh)s,%(ec)s,%(ed)s,%(ei)s); """
@@ -76,7 +79,8 @@ class Database:
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
     def update_event(self, event_id, event):  ####FIX IAMGE_URL TYPO
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require' as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     update_statement = """UPDATE events SET 
                     header = %(eh)s, content = %(ec)s, date_ = %(ed)s, iamge_url = %(ei)s 
@@ -133,7 +137,8 @@ class Database:
 
     def get_announcement(self, ann_id):
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     get_ann_statement = """SELECT * FROM announcements WHERE id = %(ann_id)s """
                     data = {'ann_id': ann_id}
@@ -148,7 +153,8 @@ class Database:
 
     def get_event(self, event_id):
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
                     data = {'event_id': event_id}
@@ -169,7 +175,8 @@ class Database:
 
     def get_event_info(self, event_id):
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
                     data = {'event_id': event_id}
@@ -205,7 +212,8 @@ class Database:
 
     def get_announcements(self, club_id=None):
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     if club_id:
                         get_anns_statement = """ SELECT * FROM announcements WHERE club_id = %(club_id)s;"""
@@ -227,7 +235,8 @@ class Database:
 
     def get_events(self, club_id=None):
         try:
-            with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+            with dbapi2.connect(Config.db_url,
+                                sslmode='require') as connection:
                 with connection.cursor() as cursor:
                     if club_id:
                         get_events_statement = """ SELECT * FROM events WHERE club_id = %(club_id)s;"""

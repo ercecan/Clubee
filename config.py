@@ -1,7 +1,9 @@
 import os
 
-heroku_url = os.environ.get("DATABASE_URL")
-dsn = heroku_url
+#h_url = os.environ.get("DATABASE_URL")
+#dsn = h_url
+dsn = """dbname='Clubee' user='postgres'
+         host='localhost' password='95175305Ee'"""
 
 
 class Config(object):

@@ -12,6 +12,7 @@ from user import is_member
 from datetime import datetime
 from models import Announcement, Event
 from flask import Response
+connection = dbapi2.connect(Config.db_url)  #sslmode='require' for heroku
 
 
 def home_page():
@@ -132,19 +133,66 @@ def admin_page():  #announcement ve event sayısını bastır
         return current_app.login_manager.unauthorized()
     if not current_user.is_admin:
         abort(401)
-    evs_ans = None
-    get_admin_info_statement = """SELECT * FROM announcements, events WHERE events.club_id = 
-                (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
-        current_user.id)
-    try:
-        with dbapi2.connect(Config.db_url, sslmode='require') as connection:
+    if request.method == "GET":
+        try:
             with connection.cursor() as cursor:
-                cursor.execute(get_admin_info_statement)
-                evs_ans = cursor.fetchall()
-                return render_template('admin_page.html', evs_ans=evs_ans)
-    except (Exception, dbapi2.Error) as error:
-        print("Error while getting admin page: {}".format(error))
-    return render_template('admin_page.html', evs_ans=evs_ans)
+                get_admin_announcements_statement = """SELECT * FROM announcements WHERE announcements.club_id = 
+                (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
+                    current_user.id)
+                cursor.execute(get_admin_announcements_statement)
+                announcements = cursor.fetchall()
+                get_admin_events_statement = """SELECT * FROM events WHERE events.club_id = 
+                (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
+                    current_user.id)
+                cursor.execute(get_admin_events_statement)
+                events = cursor.fetchall()
+                get_club_info_statement = """SELECT name FROM clubs WHERE id = 
+                (SELECT club_id FROM club_managers WHERE admin_id = {}) """.format(
+                    current_user.id)
+                cursor.execute(get_club_info_statement)
+                club_name = cursor.fetchone()
+                return render_template('admin_page.html',
+                                       announcements=announcements,
+                                       events=events,
+                                       club_name=club_name)
+        except (Exception, dbapi2.Error) as error:
+            print("Error while getting admin page: {}".format(error))
+        return render_template('index.html')
+    elif request.method == "POST":
+        if 'delete_ann' in request.form:  ##delete announcement button
+            form_announcements = request.form.getlist("announcement_sel")
+            if not len(form_announcements):  ##if no announcements is selected
+                flash('You have not selected any announcements')
+                return redirect(url_for('admin_page'))
+            try:
+                with connection.cursor() as cursor:
+                    for ann_id in form_announcements:
+                        del_announcements_statement = """DELETE FROM announcements WHERE id = {} """.format(
+                            ann_id)
+                        cursor.execute(del_announcements_statement)
+                    connection.commit()
+                    flash('Your selected announcement(s) have been deleted')
+                    return redirect(url_for('admin_page'))
+            except Exception as e:
+                print("Error while deleting announcements: ", e)
+        elif 'delete_event' in request.form:  ##delete events button
+            form_events = request.form.getlist("event_sel")
+            if not len(form_events):  ##if no events is selected
+                flash('You have not selected any events')
+                return redirect(url_for('admin_page'))
+            try:
+                with connection.cursor() as cursor:
+                    for event_id in form_events:
+                        del_events_statement = """DELETE FROM events WHERE id = {} """.format(
+                            event_id)
+                        cursor.execute(del_events_statement)
+                    connection.commit()
+                    flash('Your selected event(s) have been deleted')
+                    return redirect(url_for('admin_page'))
+            except Exception as e:
+                print("Error while deleting events: ", e)
+        else:
+            abort(405)
     """
     db = current_app.config["db"]
     clubs = db.get_clubs()
@@ -187,19 +235,18 @@ def join_club(
     if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
-        with dbapi2.connect(Config.db_url, sslmode='require') as connection:
-            with connection.cursor() as cursor:
-                if not is_member(current_user.id, club_id):
-                    join_statement = """INSERT INTO members (user_id, club_id) VALUES (%(user_id)s, %(club_id)s);"""
-                    data = {'user_id': current_user.id, 'club_id': club_id}
+        with connection.cursor() as cursor:
+            if not is_member(current_user.id, club_id):
+                join_statement = """INSERT INTO members (user_id, club_id) VALUES (%(user_id)s, %(club_id)s);"""
+                data = {'user_id': current_user.id, 'club_id': club_id}
 
-                    cursor.execute(join_statement, data)
-                    ##connection.commit()  bu lazım mı ?
-                    #user_id = cursor.fetchone()
-                    update_statement = """UPDATE clubs  SET student_count = student_count + 1 WHERE id = %(club_id)s;"""
-                    cursor.execute(update_statement, {'club_id': str(club_id)})
-                    connection.commit()
-                    return redirect(url_for('clubs_page'))
+                cursor.execute(join_statement, data)
+                ##connection.commit()  bu lazım mı ?
+                #user_id = cursor.fetchone()
+                update_statement = """UPDATE clubs  SET student_count = student_count + 1 WHERE id = %(club_id)s;"""
+                cursor.execute(update_statement, {'club_id': str(club_id)})
+                connection.commit()
+                return redirect(url_for('clubs_page'))
                 return redirect(url_for('clubs_page'))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
@@ -210,22 +257,21 @@ def leave_club(club_id):
     if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
-        with dbapi2.connect(Config.db_url, sslmode='require') as connection:
-            with connection.cursor() as cursor:
-                if is_member(
-                        current_user.id, club_id
-                ):  ##returns one if the user is actually a member of the club
-                    leave_statement = """DELETE FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
-                    data = {'user_id': current_user.id, 'club_id': club_id}
-                    cursor.execute(leave_statement, data)
-                    ##connection.commit() bu lazım mı ?
-                    #user_id = cursor.fetchone()[0]
-                    update_statement = """UPDATE clubs SET student_count = student_count - 1 WHERE id = %(club_id)s;"""
-                    data = {'club_id': club_id}
-                    cursor.execute(update_statement, data)
-                    connection.commit()
-                    return redirect(url_for('clubs_page'))
+        with connection.cursor() as cursor:
+            if is_member(
+                    current_user.id, club_id
+            ):  ##returns one if the user is actually a member of the club
+                leave_statement = """DELETE FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
+                data = {'user_id': current_user.id, 'club_id': club_id}
+                cursor.execute(leave_statement, data)
+                ##connection.commit() bu lazım mı ?
+                #user_id = cursor.fetchone()[0]
+                update_statement = """UPDATE clubs SET student_count = student_count - 1 WHERE id = %(club_id)s;"""
+                data = {'club_id': club_id}
+                cursor.execute(update_statement, data)
+                connection.commit()
                 return redirect(url_for('clubs_page'))
+            return redirect(url_for('clubs_page'))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
 
@@ -278,23 +324,21 @@ def event_page(club_id, event_id):
                 return redirect(
                     url_for('event_page', club_id=club_id, event_id=event_id))
             try:
-                with dbapi2.connect(Config.db_url,
-                                    sslmode='require') as connection:
-                    with connection.cursor() as cursor:
-                        del_comment_statement = """DELETE FROM comments WHERE id IN ("""
-                        query = ""
-                        for comment_id in form_comments:
-                            query += str(comment_id) + ","
-                        query = query[0:len(query) - 1]
-                        query += ")"
-                        del_comment_statement += query
-                        cursor.execute(del_comment_statement)
-                        connection.commit()
-                        flash('Your selected comment(s) have been deleted')
-                        return redirect(
-                            url_for('event_page',
-                                    club_id=club_id,
-                                    event_id=event_id))
+                with connection.cursor() as cursor:
+                    del_comment_statement = """DELETE FROM comments WHERE id IN ("""
+                    query = ""
+                    for comment_id in form_comments:
+                        query += str(comment_id) + ","
+                    query = query[0:len(query) - 1]
+                    query += ")"
+                    del_comment_statement += query
+                    cursor.execute(del_comment_statement)
+                    connection.commit()
+                    flash('Your selected comment(s) have been deleted')
+                    return redirect(
+                        url_for('event_page',
+                                club_id=club_id,
+                                event_id=event_id))
             except (Exception, dbapi2.Error) as error:
                 print("Error while connecting to PostgreSQL: {}".format(error))
         form = CommentForm()
@@ -307,23 +351,21 @@ def event_page(club_id, event_id):
                 'created_at': datetime.now()
             }
             try:
-                with dbapi2.connect(Config.db_url,
-                                    sslmode='require') as connection:
-                    with connection.cursor() as cursor:
-                        add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at) 
-                                                    VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""
-                        cursor.execute(add_comment_statement, comment_data)
-                        # get_event_statement = """SELECT * FROM events where event_id = %(event_id)i"""
-                        # data = {'event_id': event_id}
-                        # cursor.execute(get_event_statement, data)
-                        # _event = cursor.fetchone()
-                        connection.commit()
-                        flash('Your comment has been posted')
-                        #comment_id = cursor.fetchone()[0]
-                        return redirect(
-                            url_for('event_page',
-                                    club_id=club_id,
-                                    event_id=event_id))
+                with connection.cursor() as cursor:
+                    add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at) 
+                                                VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""
+                    cursor.execute(add_comment_statement, comment_data)
+                    # get_event_statement = """SELECT * FROM events where event_id = %(event_id)i"""
+                    # data = {'event_id': event_id}
+                    # cursor.execute(get_event_statement, data)
+                    # _event = cursor.fetchone()
+                    connection.commit()
+                    flash('Your comment has been posted')
+                    #comment_id = cursor.fetchone()[0]
+                    return redirect(
+                        url_for('event_page',
+                                club_id=club_id,
+                                event_id=event_id))
             except (Exception, dbapi2.Error) as error:
                 print("Error while connecting to PostgreSQL: {}".format(error))
         else:

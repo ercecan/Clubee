@@ -5,7 +5,8 @@ from config import Config
 
 class Database:
     def __init__(self):
-        self.conn = dbapi2.connect(Config.db_url, sslmode='require')
+        self.conn = dbapi2.connect(
+            Config.db_url)  #FOR HEROKU add to paramters: sslmode='require'
         self.clubs = {}
         self.announcements = {}
         self.events = {}
@@ -22,77 +23,69 @@ class Database:
 
     def add_announcement(self, announcement, id):
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    add_ann_statement = """INSERT INTO announcements (club_id,header,content,image_url) 
-                    VALUES ((select club_id from club_managers where admin_id = %(id)s),%(ah)s,%(ac)s,%(ai)s); """
-                    data = {
-                        'id': id,
-                        'ah': announcement.header,
-                        'ac': announcement.content,
-                        'ai': announcement.image
-                    }
-                    cursor.execute(add_ann_statement, data)
+            with self.conn.cursor() as cursor:
+                add_ann_statement = """INSERT INTO announcements (club_id,header,content,image_url) 
+                VALUES ((select club_id from club_managers where admin_id = %(id)s),%(ah)s,%(ac)s,%(ai)s); """
+                data = {
+                    'id': id,
+                    'ah': announcement.header,
+                    'ac': announcement.content,
+                    'ai': announcement.image
+                }
+                cursor.execute(add_ann_statement, data)
         except (Exception, dbapi2.Error) as error:
             print("Error while adding announcement: {}".format(error))
 
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
     def update_announcement(self, ann_id, announcement):
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    update_statement = """UPDATE announcements SET 
-                    header = %(ah)s, content = %(ac)s, image_url = %(ai)s 
-                    WHERE id = """ + str(ann_id)
-                    data = {
-                        'ah': announcement.header,
-                        'ac': announcement.content,
-                        'ai': announcement.image
-                    }
-                    cursor.execute(update_statement, data)
-                    connection.commit()
-                    print(id)
+            with self.conn.cursor() as cursor:
+                update_statement = """UPDATE announcements SET 
+                header = %(ah)s, content = %(ac)s, image_url = %(ai)s 
+                WHERE id = """ + str(ann_id)
+                data = {
+                    'ah': announcement.header,
+                    'ac': announcement.content,
+                    'ai': announcement.image
+                }
+                cursor.execute(update_statement, data)
+                connection.commit()
+                print(id)
         except (Exception, dbapi2.Error) as error:
             print("Error while updating announcement: {}".format(error))
 
     def add_event(self, event, id):  ####FIX IAMGE_URL TYPO
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    add_event_statement = """INSERT INTO events (club_id, header, content,date_, iamge_url) 
-                    VALUES ((select club_id from club_managers where admin_id = %(id)s),%(eh)s,%(ec)s,%(ed)s,%(ei)s); """
-                    data = {
-                        'id': id,
-                        'eh': event.header,
-                        'ec': event.content,
-                        'ed': event.date,
-                        'ei': event.image
-                    }
-                    cursor.execute(add_event_statement, data)
-                    print("a")
+            with self.conn.cursor() as cursor:
+                add_event_statement = """INSERT INTO events (club_id, header, content,date_, iamge_url) 
+                VALUES ((select club_id from club_managers where admin_id = %(id)s),%(eh)s,%(ec)s,%(ed)s,%(ei)s); """
+                data = {
+                    'id': id,
+                    'eh': event.header,
+                    'ec': event.content,
+                    'ed': event.date,
+                    'ei': event.image
+                }
+                cursor.execute(add_event_statement, data)
+                print("a")
         except (Exception, dbapi2.Error) as error:
             print("Error while adding event: {}".format(error))
 
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
     def update_event(self, event_id, event):  ####FIX IAMGE_URL TYPO
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    update_statement = """UPDATE events SET 
-                    header = %(eh)s, content = %(ec)s, date_ = %(ed)s, iamge_url = %(ei)s 
-                    WHERE id = """ + str(event_id)
-                    data = {
-                        'eh': event.header,
-                        'ec': event.content,
-                        'ed': event.date,
-                        'ei': event.image
-                    }
-                    cursor.execute(update_statement, data)
-                    connection.commit()
+            with self.conn.cursor() as cursor:
+                update_statement = """UPDATE events SET 
+                header = %(eh)s, content = %(ec)s, date_ = %(ed)s, iamge_url = %(ei)s 
+                WHERE id = """ + str(event_id)
+                data = {
+                    'eh': event.header,
+                    'ec': event.content,
+                    'ed': event.date,
+                    'ei': event.image
+                }
+                cursor.execute(update_statement, data)
+                connection.commit()
         except (Exception, dbapi2.Error) as error:
             print("Error while updating event: {}".format(error))
 
@@ -137,55 +130,49 @@ class Database:
 
     def get_announcement(self, ann_id):
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    get_ann_statement = """SELECT * FROM announcements WHERE id = %(ann_id)s """
-                    data = {'ann_id': ann_id}
-                    cursor.execute(get_ann_statement, data)
-                    announcement = cursor.fetchone()
-                    if announcement:
-                        return announcement  ##bir announcement arrayi belki sonra obje yaparsın
-                    else:
-                        return None
+            with self.conn.cursor() as cursor:
+                get_ann_statement = """SELECT * FROM announcements WHERE id = %(ann_id)s """
+                data = {'ann_id': ann_id}
+                cursor.execute(get_ann_statement, data)
+                announcement = cursor.fetchone()
+                if announcement:
+                    return announcement  ##bir announcement arrayi belki sonra obje yaparsın
+                else:
+                    return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcement {}".format(error))
 
     def get_event(self, event_id):
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
-                    data = {'event_id': event_id}
-                    cursor.execute(get_event_statement, data)
-                    event = cursor.fetchone()
-                    get_comment_statement = """SELECT * FROM comments WHERE event_id = %(event_id)s """
-                    cursor.execute(get_comment_statement, data)
-                    comments = cursor.fetchall()
-                    if comments:
-                        return event, comments
-                    if event:
-                        comments = None
-                        return event, comments  ##bir event arrayi belki sonra obje yaparsın
-                    else:
-                        return None
+            with self.conn.cursor() as cursor:
+                get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
+                data = {'event_id': event_id}
+                cursor.execute(get_event_statement, data)
+                event = cursor.fetchone()
+                get_comment_statement = """SELECT * FROM comments WHERE event_id = %(event_id)s """
+                cursor.execute(get_comment_statement, data)
+                comments = cursor.fetchall()
+                if comments:
+                    return event, comments
+                if event:
+                    comments = None
+                    return event, comments  ##bir event arrayi belki sonra obje yaparsın
+                else:
+                    return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcement {}".format(error))
 
     def get_event_info(self, event_id):
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
-                    data = {'event_id': event_id}
-                    cursor.execute(get_event_statement, data)
-                    event = cursor.fetchone()
-                    if event:
-                        return event  ##bir event arrayi belki sonra obje yaparsın
-                    else:
-                        return None
+            with self.conn.cursor() as cursor:
+                get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
+                data = {'event_id': event_id}
+                cursor.execute(get_event_statement, data)
+                event = cursor.fetchone()
+                if event:
+                    return event  ##bir event arrayi belki sonra obje yaparsın
+                else:
+                    return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcement {}".format(error))
 
@@ -212,46 +199,42 @@ class Database:
 
     def get_announcements(self, club_id=None):
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    if club_id:
-                        get_anns_statement = """ SELECT * FROM announcements WHERE club_id = %(club_id)s;"""
-                        data = {'club_id': club_id}
-                        cursor.execute(get_anns_statement, data)
-                        announcements = cursor.fetchall()
-                        if announcements:
-                            return announcements
-                        return None
-                    else:
-                        get_anns_statement = """ SELECT * FROM announcements"""
-                        cursor.execute(get_anns_statement)
-                        announcements = cursor.fetchall()
-                        if announcements:
-                            return announcements
-                        return None
+            with self.conn.cursor() as cursor:
+                if club_id:
+                    get_anns_statement = """ SELECT * FROM announcements WHERE club_id = %(club_id)s;"""
+                    data = {'club_id': club_id}
+                    cursor.execute(get_anns_statement, data)
+                    announcements = cursor.fetchall()
+                    if announcements:
+                        return announcements
+                    return None
+                else:
+                    get_anns_statement = """ SELECT * FROM announcements"""
+                    cursor.execute(get_anns_statement)
+                    announcements = cursor.fetchall()
+                    if announcements:
+                        return announcements
+                    return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcements {}".format(error))
 
     def get_events(self, club_id=None):
         try:
-            with dbapi2.connect(Config.db_url,
-                                sslmode='require') as connection:
-                with connection.cursor() as cursor:
-                    if club_id:
-                        get_events_statement = """ SELECT * FROM events WHERE club_id = %(club_id)s;"""
-                        data = {'club_id': club_id}
-                        cursor.execute(get_events_statement, data)
-                        events = cursor.fetchall()
-                        if events:
-                            return events
-                        return None
-                    else:
-                        get_events_statement = """ SELECT * FROM announcements"""
-                        cursor.execute(get_events_statement)
-                        events = cursor.fetchall()
-                        if events:
-                            return events
+            with self.conn.cursor() as cursor:
+                if club_id:
+                    get_events_statement = """ SELECT * FROM events WHERE club_id = %(club_id)s;"""
+                    data = {'club_id': club_id}
+                    cursor.execute(get_events_statement, data)
+                    events = cursor.fetchall()
+                    if events:
+                        return events
+                    return None
+                else:
+                    get_events_statement = """ SELECT * FROM announcements"""
+                    cursor.execute(get_events_statement)
+                    events = cursor.fetchall()
+                    if events:
+                        return events
                         return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcements {}".format(error))

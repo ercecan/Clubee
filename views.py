@@ -137,7 +137,7 @@ def admin_page():  #announcement ve event sayısını bastır
                 (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
         current_user.id)
     try:
-        with dbapi2.connect(Config.db_url) as connection:
+        with dbapi2.connect(Config.db_url, sslmode='require') as connection:
             with connection.cursor() as cursor:
                 cursor.execute(get_admin_info_statement)
                 evs_ans = cursor.fetchall()
@@ -187,7 +187,7 @@ def join_club(
     if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
-        with dbapi2.connect(Config.db_url) as connection:
+        with dbapi2.connect(Config.db_url, sslmode='require') as connection:
             with connection.cursor() as cursor:
                 if not is_member(current_user.id, club_id):
                     join_statement = """INSERT INTO members (user_id, club_id) VALUES (%(user_id)s, %(club_id)s);"""
@@ -210,7 +210,7 @@ def leave_club(club_id):
     if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
-        with dbapi2.connect(Config.db_url) as connection:
+        with dbapi2.connect(Config.db_url, sslmode='require') as connection:
             with connection.cursor() as cursor:
                 if is_member(
                         current_user.id, club_id
@@ -278,7 +278,8 @@ def event_page(club_id, event_id):
                 return redirect(
                     url_for('event_page', club_id=club_id, event_id=event_id))
             try:
-                with dbapi2.connect(Config.db_url) as connection:
+                with dbapi2.connect(Config.db_url,
+                                    sslmode='require') as connection:
                     with connection.cursor() as cursor:
                         del_comment_statement = """DELETE FROM comments WHERE id IN ("""
                         query = ""
@@ -306,7 +307,8 @@ def event_page(club_id, event_id):
                 'created_at': datetime.now()
             }
             try:
-                with dbapi2.connect(Config.db_url) as connection:
+                with dbapi2.connect(Config.db_url,
+                                    sslmode='require') as connection:
                     with connection.cursor() as cursor:
                         add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at) 
                                                     VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""

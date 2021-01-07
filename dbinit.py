@@ -17,23 +17,23 @@ def initialize():
             with connection.cursor() as cursor:
                 print("Connected...")
 
-                # drop_statements = read_sql_from_file('drop.sql')
-                # for statement in drop_statements:
-                #     if len(statement) > 5:
-                #         cursor.execute(statement)
-                # print("Drop tables...")
+                drop_statements = read_sql_from_file('drop.sql')
+                for statement in drop_statements:
+                    if len(statement) > 5:
+                        cursor.execute(statement)
+                print("Drop tables...")
 
-                # create_statements = read_sql_from_file('database.sql')
-                # for statement in create_statements:
-                #     if len(statement) > 5:
-                #         cursor.execute(statement)
-                # print("Create tables...", file=sys.stderr)
+                create_statements = read_sql_from_file('database.sql')
+                for statement in create_statements:
+                    if len(statement) > 5:
+                        cursor.execute(statement)
+                print("Create tables...", file=sys.stderr)
 
-                # insert_statements = read_sql_from_file('clubs.sql')
-                # for statement in insert_statements:
-                #     if len(statement) > 5:
-                #         cursor.execute(statement)
-                # print("Inserting into clubs...", file=sys.stderr)
+                insert_statements = read_sql_from_file('clubs.sql')
+                for statement in insert_statements:
+                    if len(statement) > 5:
+                        cursor.execute(statement)
+                print("Inserting into clubs...", file=sys.stderr)
 
                 admin_insert_statements = read_sql_from_file('admin.sql')
                 for statement in admin_insert_statements:

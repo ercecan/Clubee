@@ -12,7 +12,7 @@ event
 <table class="table">
     <tr>
         <th>Image:</th>
-        <td><img src='{{event[4]}}' height="200" width="200"></td>
+        <td><img src='{{event[5]}}' height="200" width="200"></td>
     </tr>
     <tr>
         <th>id:</th>
@@ -21,7 +21,7 @@ event
 
     <tr>
         <th>Description:</th>
-        <td>{{  event[1] }}</td>
+        <td>{{ event[1] }}</td>
     </tr>
     <tr>
         <th>History:</th>
@@ -59,6 +59,7 @@ event
         <p>yorumu silebilrsin</p>
         {% endif %}
         <ul>
+            <p>{{comment[5]}} {{comment[6]}}</p>
             <div id="comment"
                 style="border: cadetblue; border-radius: 5%; border-style:solid; border-color: lightblue; width: 20%; height:100px; overflow: auto;">
                 <p>{{comment[3]}} </p>

@@ -60,11 +60,17 @@
     {% for ann in announcements %}
     <div class="col">
         <div class="card h-100">
-            <img src="../static/images/itu_ieee.png" class="card-img-top" alt="..." height="200" width="100">
+            {% if ann[4] %}
+            <a href="{{url_for('announcement_page',club_id=ann[1],ann_id=ann[0])}}"> <img src='{{ann[4]}}'
+                    class="card-img-top" alt="announcement image" height="200" width="100"></a>
+            {% else %}
+            <a href="{{url_for('announcement_page',club_id=ann[1],ann_id=ann[0])}}"> <img
+                    src="https://via.placeholder.com/150C/O%20https://placeholder.com/" class="card-img-top"
+                    alt="announcement image" height="200" width="100"></a>
+            {% endif %}
             <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                    content. This content is a little bit longer.</p>
+                <h5 class="card-title">{{ann[2]}}</h5>
+                <p class="card-text">Click the image to learn more!</p>
             </div>
         </div>
     </div>
@@ -74,6 +80,7 @@
     <br>
 
     {% endif %}
+    <hr>
     <!--
 <table>
     <td>

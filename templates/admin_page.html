@@ -22,8 +22,9 @@
                 <li>{{ann[1]}}</li>
                 <li>{{ann[2]}}</li>
                 <li>{{ann[3]}}</li>
-                <li>image: <img src='{{ann[4]}}'></li>
-
+                {% if ann[4] %}
+                <li>image: <img src='{{ann[4]}}' width="300" height="250"></li>
+                {% endif %}
 
             </ul>
         </li>
@@ -55,7 +56,9 @@
                 <li>{{event[2]}}</li>
                 <li>{{event[3]}}</li>
                 <li>{{event[4]}}</li>
-                <li>{{event[5]}}</li>
+                {% if event[5] %}
+                <li>image: <img src='{{event[5]}}' width="300" height="250"> </li>
+                {% endif %}
             </ul>
         </li>
         {% endfor %}

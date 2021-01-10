@@ -152,7 +152,6 @@ class Database:
                 announcement = cursor.fetchone()
                 for an in announcement:
                     ar.append(an)
-
                 if announcement:
                     if ar[4] != "" and ar[4]:
                         ar[4] = "data:image/png;base64," + ar[4]
@@ -165,18 +164,26 @@ class Database:
     def get_event(self, event_id):
         try:
             with self.conn.cursor() as cursor:
-                get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
+                get_event_statement = """SELECT id, club_id, header, content,date_, encode(events.blob_image, 'base64') as image FROM events WHERE id = %(event_id)s """
                 data = {'event_id': event_id}
                 cursor.execute(get_event_statement, data)
                 event = cursor.fetchone()
-                get_comment_statement = """SELECT * FROM comments WHERE event_id = %(event_id)s """
-                cursor.execute(get_comment_statement, data)
+                event_ = []
+                for ev in event:
+                    event_.append(ev)
+                if event:
+                    if event_[5] != "" and event_[5]:
+                        event_[5] = "data:image/png;base64," + event_[5]
+
+                get_comments_statement = """SELECT comments.id, comments.event_id, comments.user_id, comments.content, comments.created_at, users.name, users.surname
+                                        FROM comments LEFT JOIN users ON users.id = comments.user_id WHERE comments.event_id = %(event_id)s;"""
+                cursor.execute(get_comments_statement, data)
                 comments = cursor.fetchall()
                 if comments:
-                    return event, comments
+                    return event_, comments
                 if event:
                     comments = None
-                    return event, comments  ##bir event arrayi belki sonra obje yaparsın
+                    return event_, comments  ##bir event arrayi belki sonra obje yaparsın
                 else:
                     return None
         except (Exception, dbapi2.Error) as error:
@@ -185,12 +192,16 @@ class Database:
     def get_event_info(self, event_id):
         try:
             with self.conn.cursor() as cursor:
-                get_event_statement = """SELECT * FROM events WHERE id = %(event_id)s """
+                get_event_statement = """SELECT id, club_id, header, content,date_, encode(events.blob_image, 'base64') as image FROM events WHERE id = %(event_id)s """
                 data = {'event_id': event_id}
                 cursor.execute(get_event_statement, data)
                 event = cursor.fetchone()
+                event_ = []
+                for ev in event:
+                    event_.append(ev)
                 if event:
-                    return event  ##bir event arrayi belki sonra obje yaparsın
+                    if ev[5] != "" and ev[5]:
+                        event_[5] = "data:image/png;base64," + event_[5]
                 else:
                     return None
         except (Exception, dbapi2.Error) as error:
@@ -217,53 +228,114 @@ class Database:
         """
         return clubs
 
-    def get_announcements(self, club_id=None, all=True):
+    def get_announcements(self, club_id=None, all=True, admin_id=None):
         try:
             with self.conn.cursor() as cursor:
-                if club_id:
-                    get_anns_statement = """ SELECT * FROM announcements WHERE club_id = %(club_id)s;"""
+                if club_id:  ##all announcements of the club
+                    get_anns_statement = """ SELECT id, club_id,header,content,encode(announcements.blob_image, 'base64') as image FROM announcements WHERE club_id = %(club_id)s;"""
                     data = {'club_id': club_id}
                     cursor.execute(get_anns_statement, data)
                     announcements = cursor.fetchall()
                     if announcements:
-                        return announcements
+                        anns = []
+                        for a in announcements:
+                            x = list(a)
+                            anns.append(x)
+                        for ann in anns:
+                            if ann[4] != "" and ann[4]:
+                                ann[4] = "data:image/png;base64," + ann[4]
+                        return anns
+                    return None
+                elif admin_id:  ##return the announcements to render for adminpage
+                    get_anns_statement = """ SELECT id, club_id,header,content,encode(announcements.blob_image, 'base64') as image 
+                    FROM announcements WHERE club_id = 
+                    (SELECT club_id FROM club_managers WHERE admin_id = %(admin_id)s);"""
+                    data = {'admin_id': admin_id}
+                    cursor.execute(get_anns_statement, data)
+                    announcements = cursor.fetchall()
+                    if announcements:
+                        anns = []
+                        for a in announcements:  ##becaues it returns a list of tuples, convert all tuples to list so it is possible to do changes
+                            x = list(a)
+                            anns.append(x)
+                        for ann in anns:
+                            if ann[4] != "" and ann[4]:
+                                ann[4] = "data:image/png;base64," + ann[4]
+                        return anns
                     return None
                 else:
-                    if all:
-                        get_anns_statement = """ SELECT * FROM announcements"""
+                    if all:  ##for announcements page
+                        get_anns_statement = """ SELECT id, club_id,header,content,encode(announcements.blob_image, 'base64') as image FROM announcements"""
                         cursor.execute(get_anns_statement)
                         announcements = cursor.fetchall()
                         if announcements:
-                            return announcements
+                            anns = []
+                            for a in announcements:
+                                x = list(a)
+                                anns.append(x)
+                            for ann in anns:
+                                if ann[4] != "" and ann[4]:
+                                    ann[4] = "data:image/png;base64," + ann[4]
+                            return anns
                         return None
-                    if not all:
-                        get_anns_statement = """ SELECT * FROM announcements LIMIT 5 """  ##orderby created at
+                    if not all:  ##for main page sharing latest announcements
+                        get_anns_statement = """ SELECT id, club_id,header,content,encode(announcements.blob_image, 'base64') as image FROM announcements LIMIT 5 """  ##orderby created at
                         cursor.execute(get_anns_statement)
                         announcements = cursor.fetchall()
                         if announcements:
-                            return announcements
+                            anns = []
+                            for a in announcements:
+                                x = list(a)
+                                anns.append(x)
+                            for ann in anns:
+                                if ann[4] != "" and ann[4]:
+                                    ann[4] = "data:image/png;base64," + ann[4]
+                            return anns
                         return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcements {}".format(error))
 
-    def get_events(self, club_id=None):
+    def get_events(
+        self,
+        club_id=None,
+        admin_id=None
+    ):  ##only visible if user is member and visits the clubs page
         try:
             with self.conn.cursor() as cursor:
                 if club_id:
-                    get_events_statement = """ SELECT * FROM events WHERE club_id = %(club_id)s;"""
+                    get_events_statement = """ SELECT id, club_id, header, content, date_, encode(events.blob_image, 'base64') as image FROM events WHERE club_id = %(club_id)s;"""
                     data = {'club_id': club_id}
                     cursor.execute(get_events_statement, data)
                     events = cursor.fetchall()
                     if events:
-                        return events
+                        evs = []
+                        for e in events:
+                            x = list(e)
+                            evs.append(x)
+                        for ev in evs:
+                            if ev[5] and ev[5] != "":
+                                ev[5] = "data:image/png;base64," + ev[5]
+                        return evs
                     return None
-                else:
-                    get_events_statement = """ SELECT * FROM announcements"""
-                    cursor.execute(get_events_statement)
+                elif admin_id:
+                    get_events_statement = """ SELECT id, club_id, header, content, date_, encode(events.blob_image, 'base64') as image 
+                    FROM events WHERE club_id = 
+                    (SELECT club_id FROM club_managers WHERE admin_id = %(admin_id)s);"""
+                    data = {'admin_id': admin_id}
+                    cursor.execute(get_events_statement, data)
                     events = cursor.fetchall()
                     if events:
-                        return events
-                        return None
+                        evs = []
+                        for e in events:
+                            x = list(e)
+                            evs.append(x)
+                        for ev in evs:
+                            if ev[5] and ev[5] != "":
+                                ev[5] = "data:image/png;base64," + ev[5]
+                        return evs
+                    return None
+                else:
+                    abort(404)
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcements {}".format(error))
 

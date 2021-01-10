@@ -143,26 +143,35 @@ def admin_page():  #announcement ve event sayısını bastır
         abort(401)
     if request.method == "GET":
         try:
+            db = current_app.config["db"]
+            anns = db.get_announcements(admin_id=current_user.id)
+            evs = db.get_events(admin_id=current_user.id)
             with connection.cursor() as cursor:
-                get_admin_announcements_statement = """SELECT * FROM announcements WHERE announcements.club_id = 
-                (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
-                    current_user.id)
-                cursor.execute(get_admin_announcements_statement)
-                announcements = cursor.fetchall()
-                get_admin_events_statement = """SELECT * FROM events WHERE events.club_id = 
-                (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
-                    current_user.id)
-                cursor.execute(get_admin_events_statement)
-                events = cursor.fetchall()
-                get_club_info_statement = """SELECT name FROM clubs WHERE id = 
+                get_club_info_statement = """SELECT name FROM clubs WHERE id =
                 (SELECT club_id FROM club_managers WHERE admin_id = {}) """.format(
                     current_user.id)
                 cursor.execute(get_club_info_statement)
                 club_name = cursor.fetchone()
-                return render_template('admin_page.html',
-                                       announcements=announcements,
-                                       events=events,
-                                       club_name=club_name)
+            # get_admin_announcements_statement = """SELECT * FROM announcements WHERE announcements.club_id =
+            # (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
+            #     current_user.id)
+            # cursor.execute(get_admin_announcements_statement)
+            # announcements = cursor.fetchall()
+            # get_admin_events_statement = """SELECT * FROM events WHERE events.club_id =
+            # (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
+            #     current_user.id)
+            # cursor.execute(get_admin_events_statement)
+            # events = cursor.fetchall()
+            # events_ = []
+            # for event in events:
+            #     events_.append(event)
+            # for event in events_:
+            #     event[5] = "data:image/png;base64," + event[5]
+
+            return render_template('admin_page.html',
+                                   announcements=anns,
+                                   events=evs,
+                                   club_name=club_name)
         except (Exception, dbapi2.Error) as error:
             print("Error while getting admin page: {}".format(error))
         return render_template('index.html')
@@ -316,9 +325,9 @@ def event_page(club_id, event_id):
             _event = []
             if club is None:
                 abort(404)
-            if _event is None:
-                abort(404)
             _event, _comment = db.get_event(event_id=event_id)
+            if _event is None or len(_event) == 0:
+                abort(404)
             form = CommentForm()
             return render_template("event.html",
                                    form=form,

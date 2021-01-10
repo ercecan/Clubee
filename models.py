@@ -24,7 +24,7 @@ class Club:
 
 
 class Announcement:
-    def __init__(self, header, content, image):
+    def __init__(self, header, content, image=None):
         self.header = header
         self.content = content
         self.image = image

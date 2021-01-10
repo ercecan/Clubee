@@ -5,7 +5,7 @@ announcement add
 
 {% block content %}
 <h1>Add announcement</h1>
-<form action="" method="post" novalidate>
+<form action="" method="post" enctype=multipart/form-data novalidate>
     {{ form.hidden_tag() }}
     <p>
         {{ form.header.label }}<br>
@@ -16,18 +16,19 @@ announcement add
     </p>
     <p>
         {{ form.content.label }}<br>
-        {{ form.content(cols=50, rows=4) }}
+        {{ form.content(cols=50, rows=20) }}
         {% for error in form.content.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
     <p>
         {{ form.image.label }}<br>
-        {{ form.image(cols=50, rows=4) }}
+        {{ form.image }}
         {% for error in form.image.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
+
     <p>{{ form.submit() }}</p>
 </form>
 {%endblock%}

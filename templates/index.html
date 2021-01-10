@@ -47,13 +47,17 @@
 </div>
 <div class="announcements-index"></div>
 <br>
+{% if announcements %}
 <hr>
+
 <h2 id="announcements-header" style="text-align: center; font-family: sans-serif;"> Latetst Announcements</h2>
 </div>
 
 
 
+
 <div class="row row-cols-1 row-cols-md-3 g-4" style="width: 70%; margin-top: 0.5%; margin-left: 15%;">
+    {% for ann in announcements %}
     <div class="col">
         <div class="card h-100">
             <img src="../static/images/itu_ieee.png" class="card-img-top" alt="..." height="200" width="100">
@@ -64,39 +68,13 @@
             </div>
         </div>
     </div>
-    <div class="col">
-        <div class="card h-100">
-            <img src="../static/images/itu_ieee.png" class="card-img-top" alt="..." height="200" width="100">
-            <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a short card.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card h-100">
-            <img src="../static/images/itu_ieee.png" class="card-img-top" alt="..." height="200" width="100">
-            <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                    content.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card h-100">
-            <img src="../static/images/itu_ieee.png" class="card-img-top" alt="..." height="200" width="100">
-            <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                    content. This content is a little bit longer.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<br>
-<br>
-<!--
+
+    {% endfor %}
+    <br>
+    <br>
+
+    {% endif %}
+    <!--
 <table>
     <td>
         <div class="card" style="width: 50%;">
@@ -119,4 +97,4 @@
 </table>
 -->
 
-{%endblock%}
+    {%endblock%}

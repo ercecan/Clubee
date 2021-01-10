@@ -75,7 +75,8 @@ ON DELETE CASCADE
 ON UPDATE CASCADE,
 header TEXT NOT NULL,
 content TEXT NOT NULL,
-image_url TEXT
+blob_image BYTEA,
+created_at TIMESTAMP DEFAULT NOW()
 );
 
 
@@ -87,7 +88,8 @@ ON UPDATE CASCADE,
 header TEXT NOT NULL,
 content TEXT NOT NULL,
 date_ DATE,
-iamge_url TEXT
+blob_image BYTEA,
+created_at TIMESTAMP DEFAULT NOW()
 );
 
 
@@ -96,7 +98,7 @@ id SERIAL PRIMARY KEY,
 event_id INTEGER NOT NULL,
 user_id INTEGER NOT NULL,
 content TEXT NOT NULL,
-created_at TIMESTAMP NOT NULL,
+created_at TIMESTAMP DEFAULT NOW() NOT NULL,
 FOREIGN KEY (event_id) REFERENCES events (id) 
 ON DELETE CASCADE
 ON UPDATE CASCADE,

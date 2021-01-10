@@ -5,20 +5,28 @@ from flask_login import LoginManager, login_user, logout_user, login_required, l
 from user import get_user
 from passlib.hash import pbkdf2_sha256 as hasher
 import psycopg2 as dbapi2
-from user import User
+from user import User, is_member
 from config import Config
 from database import Database
-from user import is_member
-from datetime import datetime
 from models import Announcement, Event
 from flask import Response
+from upload import allowed_file, ALLOWED_EXTENSIONS  ##necessary functions for uploading
+from werkzeug.utils import secure_filename
+import os
+import base64
+from PIL import Image
+from io import BytesIO
+
 connection = dbapi2.connect(Config.db_url)  #sslmode='require' for heroku
 
 
 def home_page():
-    today = datetime.today()
-    day_name = today.strftime("%A")
-    return render_template("index.html", day=day_name)
+    try:
+        db = current_app.config["db"]
+        announcements = db.get_announcements(all=False)
+        return render_template("index.html", announcements=announcements)
+    except Exception as e:
+        print("Error while getting home page: ", e)
 
 
 def clubs_page():
@@ -41,7 +49,7 @@ def myclubs_page():
 
 def announcements_page():  #announcements page
     db = current_app.config["db"]
-    announcements = db.get_announcements()
+    announcements = db.get_announcements(all=True)
     return render_template("announcements.html", announcements=announcements)
 
 
@@ -282,6 +290,7 @@ def announcement_page(club_id, ann_id):
     if club is None:
         abort(404)
     _announcement = db.get_announcement(ann_id=ann_id)
+    #print("a")
     if _announcement is None:
         abort(404)
     return render_template("announcement.html", announcement=_announcement)
@@ -416,12 +425,17 @@ def add_announcement_page():
     if form.validate_on_submit():
         header = form.data["header"]
         content = form.data["content"]
-        image = form.data["image"]
-        ann = Announcement(header, content, image)
+        if 'image' in request.files:
+            image = request.files['image'].read()
+            binary_image = dbapi2.Binary(image)
+        else:
+            binary_image = ""
+        ann = Announcement(header, content, binary_image)
         db = current_app.config["db"]
         db.add_announcement(ann, current_user.id)
         flash('announcement added to the database')
         return redirect(url_for("admin_page"))
+
     return render_template("ann_add.html", form=form)
 
 
@@ -435,19 +449,37 @@ def edit_announcement_page(ann_id):
     form = AnnouncementForm()
     db = current_app.config["db"]
     announcement = db.get_announcement(ann_id)
+    img_update = True
     if form.validate_on_submit():
         header = form.data["header"]
         content = form.data["content"]
-        image = form.data["image"]
+        if 'image' in request.files:
+            if request.files['image'].filename == None or request.files[
+                    'image'].filename == "":
+                img_update = False
+            image = request.files['image'].read()
+            binary_image = dbapi2.Binary(image)
+        else:
+            binary_image = ""
         _announcement = Announcement(header=header,
                                      content=content,
-                                     image=image)
-        db.update_announcement(ann_id=ann_id, announcement=_announcement)
+                                     image=binary_image)
+        db.update_announcement(ann_id=ann_id,
+                               announcement=_announcement,
+                               img_update=img_update)
         return redirect(url_for("admin_page"))
     form.header.data = announcement[2]
     form.content.data = announcement[3]
     form.image.data = announcement[4]
-    return render_template("ann_edit.html", form=form)
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT ENCODE(announcements.blob_image, 'base64') FROM announcements WHERE id = %s",
+            (ann_id, ))
+        img = cursor.fetchone()
+        image = []
+        image.append(img[0])
+        image = "data:image/png;base64," + image[0]
+    return render_template("ann_edit.html", form=form, img=image)
 
 
 @login_required
@@ -460,9 +492,16 @@ def add_event_page():
     if form.validate_on_submit():
         header = form.data["header"]
         content = form.data["content"]
-        image = form.data["image"]
         date = form.data["date"]
-        event = Event(header=header, content=content, date=date, image=image)
+        if 'image' in request.files:
+            image = request.files['image'].read()
+            binary_image = dbapi2.Binary(image)
+        else:
+            binary_image = ""
+        event = Event(header=header,
+                      content=content,
+                      date=date,
+                      image=binary_image)
         db = current_app.config["db"]
         db.add_event(event, current_user.id)
         flash('event added to the database')
@@ -483,18 +522,34 @@ def edit_event_page(event_id):
         if form.validate_on_submit():
             header = form.data["header"]
             content = form.data["content"]
-            image = form.data["image"]
             date = form.data["date"]
+            if 'image' in request.files:
+                if request.files['image'].filename == None or request.files[
+                        'image'].filename == "":
+                    img_update = False
+                image = request.files['image'].read()
+                binary_image = dbapi2.Binary(image)
+            else:
+                binary_image = ""
             _event = Event(header=header,
                            content=content,
                            date=date,
-                           image=image)
-            db.update_event(event_id=event_id, event=_event)
+                           image=binary_image)
+            db.update_event(event_id=event_id,
+                            event=_event,
+                            img_update=img_update)
             return redirect(url_for("admin_page"))
         form.header.data = event[2]
         form.content.data = event[3]
-        form.image.data = event[4]
-        return render_template("event_edit.html", form=form)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT ENCODE(events.blob_image, 'base64') FROM events WHERE id = %s",
+                (event_id, ))
+            img = cursor.fetchone()
+            image = []
+            image.append(img[0])
+            image = "data:image/png;base64," + image[0]
+        return render_template("event_edit.html", form=form, img=image)
     except Exception as e:
         print(e)
 
@@ -519,3 +574,58 @@ def edit_event():
 @login_required
 def delete_event():
 """
+
+# def pil2datauri(img):
+#     #converts PIL image to datauri
+#     data = BytesIO()
+#     data = data.co
+#     img.save(data, "RGB")
+#     data64 = base64.b64encode(data.getvalue())
+#     return u'data:img/jpeg;base64,' + data64.decode('utf-8')
+
+
+def upload_file():
+    fi = None
+    if request.method == 'POST':
+        # check if the post request has the file part
+
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        with connection.cursor() as cursor:
+            x = request.files["file"].read()
+            binary = dbapi2.Binary(x)
+            # img = Image.open(request.files['file'].stream)
+            #ima = pil2datauri(img)
+            # bg = Image.new("RGB", img.size, (255, 255, 255))
+            # bg.paste(img, img)
+            #print(x)
+            cursor.execute("insert into pic_test (blob) values (%s)",
+                           (binary, ))
+            connection.commit()
+            select_blob_statement = "select encode(pic_test.blob, 'base64') as your_alias_name from pic_test where id = 1"
+            cursor.execute(select_blob_statement)
+            base64_img = cursor.fetchone()
+            #image = base64.b64encode(img.tobytes())
+            #print(fi[0])
+            # with open("static/images/file.jpg", "wb") as f:
+            #     f.write(fi[0])
+            img = "data:image/png;base64," + base64_img[0]
+            return render_template('pt.html', img=img)
+
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        # if file.filename == '':
+        #     flash('No selected file')
+        #     return redirect(request.url)
+        # if file and allowed_file(file.filename):
+        #     filename = secure_filename(file.filename)
+        #     with connection.cursor() as cursor:
+        #         a = "insert into pic_test (blob) values ({})".format(file)
+        #         cursor.execute(a)
+        #         connection.commit()
+        #         # file.save(
+        #         #     os.path.join(current_app.config['UPLOAD_FOLDER'],
+        #         #                  filename))
+        #         return redirect(url_for('uploaded_file', filename=filename))
+    return render_template('pt.html', fi=fi)

@@ -24,8 +24,8 @@ class Database:
     def add_announcement(self, announcement, id):
         try:
             with self.conn.cursor() as cursor:
-                add_ann_statement = """INSERT INTO announcements (club_id,header,content,image_url) 
-                VALUES ((select club_id from club_managers where admin_id = %(id)s),%(ah)s,%(ac)s,%(ai)s); """
+                add_ann_statement = """INSERT INTO announcements (club_id,header,content,blob_image) 
+                VALUES ((select club_id from club_managers where admin_id = %(id)s),%(ah)s,%(ac)s, %(ai)s); """
                 data = {
                     'id': id,
                     'ah': announcement.header,
@@ -33,23 +33,30 @@ class Database:
                     'ai': announcement.image
                 }
                 cursor.execute(add_ann_statement, data)
+                self.conn.commit()
         except (Exception, dbapi2.Error) as error:
             print("Error while adding announcement: {}".format(error))
 
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
-    def update_announcement(self, ann_id, announcement):
+    def update_announcement(self, ann_id, announcement, img_update):
+        update_statement = ""
         try:
             with self.conn.cursor() as cursor:
-                update_statement = """UPDATE announcements SET 
-                header = %(ah)s, content = %(ac)s, image_url = %(ai)s 
-                WHERE id = """ + str(ann_id)
+                if img_update:
+                    update_statement = """UPDATE announcements SET 
+                    header = %(ah)s, content = %(ac)s, blob_image = %(ai)s 
+                    WHERE id = """ + str(ann_id)
+                else:
+                    update_statement = """UPDATE announcements SET 
+                    header = %(ah)s, content = %(ac)s
+                    WHERE id = """ + str(ann_id)
                 data = {
                     'ah': announcement.header,
                     'ac': announcement.content,
                     'ai': announcement.image
                 }
                 cursor.execute(update_statement, data)
-                connection.commit()
+                self.conn.commit()
                 print(id)
         except (Exception, dbapi2.Error) as error:
             print("Error while updating announcement: {}".format(error))
@@ -57,7 +64,7 @@ class Database:
     def add_event(self, event, id):  ####FIX IAMGE_URL TYPO
         try:
             with self.conn.cursor() as cursor:
-                add_event_statement = """INSERT INTO events (club_id, header, content,date_, iamge_url) 
+                add_event_statement = """INSERT INTO events (club_id, header, content,date_, blob_image) 
                 VALUES ((select club_id from club_managers where admin_id = %(id)s),%(eh)s,%(ec)s,%(ed)s,%(ei)s); """
                 data = {
                     'id': id,
@@ -67,17 +74,24 @@ class Database:
                     'ei': event.image
                 }
                 cursor.execute(add_event_statement, data)
-                print("a")
+                self.conn.commit()
         except (Exception, dbapi2.Error) as error:
             print("Error while adding event: {}".format(error))
 
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
-    def update_event(self, event_id, event):  ####FIX IAMGE_URL TYPO
+    def update_event(self, event_id, event,
+                     img_update):  ####FIX IAMGE_URL TYPO
+        update_statement = ""
         try:
             with self.conn.cursor() as cursor:
-                update_statement = """UPDATE events SET 
-                header = %(eh)s, content = %(ec)s, date_ = %(ed)s, iamge_url = %(ei)s 
-                WHERE id = """ + str(event_id)
+                if img_update:
+                    update_statement = """UPDATE events SET 
+                    header = %(eh)s, content = %(ec)s, date_ = %(ed)s, blob_image = %(ei)s 
+                    WHERE id = """ + str(event_id)
+                else:
+                    update_statement = """UPDATE events SET 
+                    header = %(eh)s, content = %(ec)s, date_ = %(ed)s
+                    WHERE id = """ + str(event_id)
                 data = {
                     'eh': event.header,
                     'ec': event.content,
@@ -85,7 +99,7 @@ class Database:
                     'ei': event.image
                 }
                 cursor.execute(update_statement, data)
-                connection.commit()
+                self.conn.commit()
         except (Exception, dbapi2.Error) as error:
             print("Error while updating event: {}".format(error))
 
@@ -131,12 +145,18 @@ class Database:
     def get_announcement(self, ann_id):
         try:
             with self.conn.cursor() as cursor:
-                get_ann_statement = """SELECT * FROM announcements WHERE id = %(ann_id)s """
+                get_ann_statement = """SELECT id,club_id,header,content,encode(announcements.blob_image, 'base64') as image FROM announcements WHERE id = %(ann_id)s """
                 data = {'ann_id': ann_id}
                 cursor.execute(get_ann_statement, data)
+                ar = []
                 announcement = cursor.fetchone()
+                for an in announcement:
+                    ar.append(an)
+
                 if announcement:
-                    return announcement  ##bir announcement arrayi belki sonra obje yaparsın
+                    if ar[4] != "" and ar[4]:
+                        ar[4] = "data:image/png;base64," + ar[4]
+                    return ar  ##bir announcement arrayi belki sonra obje yaparsın
                 else:
                     return None
         except (Exception, dbapi2.Error) as error:
@@ -197,7 +217,7 @@ class Database:
         """
         return clubs
 
-    def get_announcements(self, club_id=None):
+    def get_announcements(self, club_id=None, all=True):
         try:
             with self.conn.cursor() as cursor:
                 if club_id:
@@ -209,12 +229,20 @@ class Database:
                         return announcements
                     return None
                 else:
-                    get_anns_statement = """ SELECT * FROM announcements"""
-                    cursor.execute(get_anns_statement)
-                    announcements = cursor.fetchall()
-                    if announcements:
-                        return announcements
-                    return None
+                    if all:
+                        get_anns_statement = """ SELECT * FROM announcements"""
+                        cursor.execute(get_anns_statement)
+                        announcements = cursor.fetchall()
+                        if announcements:
+                            return announcements
+                        return None
+                    if not all:
+                        get_anns_statement = """ SELECT * FROM announcements LIMIT 5 """  ##orderby created at
+                        cursor.execute(get_anns_statement)
+                        announcements = cursor.fetchall()
+                        if announcements:
+                            return announcements
+                        return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcements {}".format(error))
 

@@ -22,3 +22,4 @@ class Config(object):
 
     USERS = ["123456789"]
     ADMIN_USERS = ["erce"]
+    UPLOAD_FOLDER = '/stattic/images'

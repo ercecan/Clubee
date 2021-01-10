@@ -14,7 +14,8 @@ INSERT INTO clubs (name,description,history,student_count,source,mission,vision,
 VALUES ('IEEE Student Branch','description', 'history',12,'http://www.ituieee.com/','mission','vision','../static/images/itu_acm.png');
 
 INSERT INTO clubs (name,description,history,student_count,source,mission,vision,image_url) 
-VALUES ('Robotics Club','description', 'history',12,'https://www.iturobotik.com/','mission','vision','../static/images/itu_acm.png');
+VALUES ('Data Science Club','description', 'history',12,'https://www.linkedin.com/company/itudss/','mission','vision','../static/images/itu_acm.png');
 
 INSERT INTO clubs (name,description,history,student_count,source,mission,vision,image_url) 
-VALUES ('Data Science Club','description', 'history',12,'https://www.linkedin.com/company/itudss/','mission','vision','../static/images/itu_acm.png');
+VALUES ('Robotics Club','description', 'history',12,'https://www.iturobotik.com/','mission','vision','../static/images/itu_acm.png');
+

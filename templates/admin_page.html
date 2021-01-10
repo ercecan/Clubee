@@ -22,7 +22,7 @@
                 <li>{{ann[1]}}</li>
                 <li>{{ann[2]}}</li>
                 <li>{{ann[3]}}</li>
-                <li>{{ann[4]}}</li>
+                <li>image: <img src='{{ann[4]}}'></li>
 
 
             </ul>
@@ -38,7 +38,7 @@
 <h4><a href="{{url_for('add_event_page')}}">Add Event</a></h4>
 {% if not events %}
 <h5>There are no events for {{club_name}}</h5>
-{%  endif %}
+{% endif %}
 {% if events %}
 <h5>events</h5>
 <form action="" method="post" novalidate>

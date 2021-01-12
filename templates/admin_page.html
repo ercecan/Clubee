@@ -1,71 +1,102 @@
 {%extends "base.html"%} {% block title %}Admin Page{% endblock %} {% block content %}
 <h2>ADMIN PAGE</h2>
-<h4><a href="{{url_for('add_announcement_page')}}">Add Announcement</a></h4>
+
 {% if not announcements %}
 <h5>There are no announcements for {{club_name}}</h5>
 {% endif %}
 {% if announcements %}
 
-<h5>Announcements</h5>
-<form action="" method="post" novalidate>
-    <ol>
-        {% for ann in announcements %}
-        <li>
-            <label class="checkbox">
-                <input type="checkbox" name="announcement_sel" value="{{ann[0]}}" />
-            </label>
-            <ul>
+
+<h3 style="padding-left: 5rem; color: coral;">Announcements</h3>
+
+<div style="padding: 5rem; float:left; width: 45%; position: relative;">
+    <div style="left: 20%;">
+        <h4><a href="{{url_for('add_announcement_page')}}">Add Announcement</a></h4>
+        <table>
+            <form action="" method="post" novalidate>
+
+                {% for ann in announcements %}
+
+                <label class="checkbox">
+                    <input type="checkbox" name="announcement_sel" value="{{ann[0]}}" />
+                </label>
 
                 <h5><a href="{{url_for('edit_announcement_page',ann_id=ann[0])}}">Edit Announcement</a></h5>
 
-                <li>{{ann[0]}}</li>
-                <li>{{ann[1]}}</li>
-                <li>{{ann[2]}}</li>
-                <li>{{ann[3]}}</li>
-                {% if ann[4] %}
-                <li>image: <img src='{{ann[4]}}' width="300" height="250"></li>
-                {% endif %}
+                <tr>
+                    <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
+                        <div class="card-header">{{ann[2]}}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Info card title</h5>
+                            <a href="{{url_for('announcement_page',ann_id = ann[0],club_id=ann[1])}}"><img
+                                    src='{{ann[4]}}' height="150" width="250"></a>
+                        </div>
+                    </div>
+                </tr>
 
-            </ul>
-        </li>
-        {% endfor %}
-    </ol>
 
-    <div>
-        <input type="submit" name="delete_ann" class="btn btn-danger" value="Delete Announcement">
+
+                {% endfor %}
+                <div>
+                    <input type="submit" name="delete_ann" class="btn btn-danger" value="Delete Announcement">
+                </div>
+            </form>
+
+        </table>
     </div>
-</form>
-{% endif %}
-<h4><a href="{{url_for('add_event_page')}}">Add Event</a></h4>
+</div>
+{% endif%}
+
 {% if not events %}
 <h5>There are no events for {{club_name}}</h5>
 {% endif %}
-{% if events %}
-<h5>events</h5>
-<form action="" method="post" novalidate>
-    <ol>
-        {% for event in events %}
-        <li>
-            <label class="checkbox">
-                <input type="checkbox" name="event_sel" value="{{event[0]}}" />
-            </label>
-            <ul>
+
+
+
+
+
+
+
+<h3 style="padding-left: 5rem; color: coral;">Events</h3>
+
+<div style="padding: 5rem; float:left; width: 45%; position: relative;">
+    <div style="left: 20%;">
+        <h4><a href="{{url_for('add_event_page')}}">Add Event</a></h4>
+        {% if events %}
+        <table>
+            <form action="" method="post" novalidate>
+
+                {% for event in events %}
+
+                <label class="checkbox">
+                    <input type="checkbox" name="event_sel" value="{{event[0]}}" />
+                </label>
+
                 <h5><a href="{{url_for('edit_event_page',event_id=event[0])}}">Edit Event</a></h5>
-                <li>{{event[0]}}</li>
-                <li>{{event[1]}}</li>
-                <li>{{event[2]}}</li>
-                <li>{{event[3]}}</li>
-                <li>{{event[4]}}</li>
-                {% if event[5] %}
-                <li>image: <img src='{{event[5]}}' width="300" height="250"> </li>
-                {% endif %}
-            </ul>
-        </li>
-        {% endfor %}
-    </ol>
-    {% endif %}
-    <div>
-        <input type="submit" name="delete_event" class="btn btn-danger" value="Delete Event">
+
+                <tr>
+                    <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
+                        <div class="card-header">{{event[2]}}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Info card title</h5>
+                            <a href="{{url_for('event_page',event_id = event[0],club_id=event[1])}}"><img
+                                    src='{{event[5]}}' height="150" width="250"></a>
+                        </div>
+                    </div>
+                </tr>
+
+
+
+                {% endfor %}
+                <div>
+                    <input type="submit" name="delete_event" class="btn btn-danger" value="Delete Event">
+                </div>
+            </form>
+
+        </table>
     </div>
-</form>
+</div>
+
+
+{% endif %}
 {% endblock %}

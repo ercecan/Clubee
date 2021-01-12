@@ -2,24 +2,20 @@
 {%extends "base.html"%}
 {% block title %}
 
-{% if club.name %}
-club.name
+{% if club[1] %}
+{{club[1]}}
 
 {% endif %}
 
 {% endblock %}
 
 {% block content %}
-<h2 class="title">{{club.name}}</h2>
+<h2 class="title">{{club[1]}}</h2>
 
 <table class="table">
     <tr>
         <th>Image:</th>
-        <td><img src='{{club[7]}}' height="200" width="200"></td>
-    </tr>
-    <tr>
-        <th>Name:</th>
-        <td>{{ club[1] }}</td>
+        <td style="float: left;"><img src='{{club[8]}}' height="200" width="400"></td>
     </tr>
 
     <tr>
@@ -38,78 +34,91 @@ club.name
         <th>Mission:</th>
         <td>{{club[5]}}</td>
     </tr>
-    {% if announcements %}
-    <tr>
-        <th>announcements</th>
-        {% for ann in announcements %}
-        <td><a href="{{url_for('announcement_page',ann_id = ann[0],club_id=ann[1])}}">go to announcement</a></td>
-        <td>{{ann[0]}}</td>
-        <td>{{ann[1]}}</td>
-        <td>{{ann[2]}}</td>
-        <td>{{ann[3]}}</td>
-        <td><img src='{{ann[4]}}' height="100" width="100"></td>
-        {% endfor %}
-    </tr>
-    {% endif %}
-    {% if current_user.is_authenticated%}
-    {% if current_user.id == member[0] %}
-    {% if events %}
-    <tr>
-        <th>events</th>
-        {% for event in events %}
-        <td><a href="{{url_for('event_page',event_id = event[0],club_id=event[1])}}">go to event</a></td>
-        <td>{{event[0]}}</td>
-        <td>{{event[1]}}</td>
-        <td>{{event[2]}}</td>
-        <td>{{event[3]}}</td>
-        {% endfor %}
-    </tr>
-    {% endif %}
-    {% endif %}
-    {% endif %}
-    <!--
-    <tr>
-        <th>Announcements:</th>
-        {%for ann in club.announcements%}
-        <td>{{ann}}</td>
-        {%endfor%}
-    </tr>
-    
-    <tr>
-        <th>Events:</th>
-        {%for event in club.events%}
-        <td>{{event}}</td>
-        {%endfor%}
-    </tr>
-    -->
+
+
     <tr>
         <th>Number of students joined:</th>
         <td>{{club[4]}}</td>
     </tr>
 
     <tr>
+        {% if current_user.is_authenticated%}
         <th>Click the button to join the club</th>
 
-        {% if current_user.is_authenticated%}
+
         {% if current_user.id == member[0] %}
 
         <td>
             <form action="{{url_for('leave_club', club_id = club[0])}}" method="post">
-                <label for="leave">Leave</label>
-                <input type="submit" name="leave">Leave</input>
+                <label for="leave"></label>
+                <input type="submit" name="leave" value="Leave"></input>
             </form>
         </td>
         {% elif not current_user.id == member[0] %}
         <td>
             <form action="{{url_for('join_club', club_id = club[0])}}" method="post">
-                <label for="join">Join</label>
-                <input type="submit" name="join">Join</input>
+                <label for="join"></label>
+                <input type="submit" name="join" value="Join"></input>
             </form>
         </td>
         {% endif %}
         {% endif %}
     </tr>
-
+    <hr>
 
 </table>
+
+
+{% if announcements %}
+<h3 style="padding-left: 5rem; color: coral;">Announcements</h3>
+<div style="padding: 5rem; float:left; width: 45%; position: relative;">
+    <div style="left: 20%;">
+        <table>
+
+            {% for ann in announcements %}
+            <tr>
+                <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
+                    <div class="card-header">{{ann[2]}}</div>
+                    <div class="card-body">
+                        <h5 class="card-title">Info card title</h5>
+                        <a href="{{url_for('announcement_page',ann_id = ann[0],club_id=ann[1])}}"><img src='{{ann[4]}}'
+                                height="150" width="250"></a>
+                    </div>
+                </div>
+            </tr>
+            {% endfor %}
+
+
+        </table>
+    </div>
+</div>
+{% endif %}
+{% if events %}
+{% if current_user.is_authenticated%}
+{% if current_user.id == member[0] %}
+
+<h3 style="padding-left: 60rem; bottom: 40px; color: coral; position: relative;">Evenets</h3>
+<div style="padding: 2rem; float:right; width: 45%; position: relative;">
+    <div style="left: 20%;">
+        <table>
+            {% for event in events %}
+            <tr>
+                <div class="card text-white bg-success mb-3" style="max-width: 18rem;">
+                    <div class="card-header">{{event[2]}}</div>
+                    <div class="card-body">
+                        <h5 class="card-title">Info card title</h5>
+                        <a href="{{url_for('event_page',event_id = event[0],club_id=event[1])}}"><img src='{{event[5]}}'
+                                height="150" width="250"></a>
+                    </div>
+                </div>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+{% endif %}
+
+
 {%endblock%}

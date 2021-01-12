@@ -1,22 +1,80 @@
 {%extends "base.html"%} {% block title %}Clubs{% endblock %} {% block content %}
-<ul>
-    <h1>clubs</h1>
-    <li>
-        {% for club in clubs %}
+<h1 style="text-align: center; font-family: sans-serif; color: cadetblue; padding: bottom 100px; ;">The Joyful
+    Clubs of ITU</h1>
 
-        <a href="{{ url_for('club_page', club_id=club[0]) }}">this is {{club[1]}}</a> <br>
-        <ul>
-            <div class="card mb-3" style="width: 50%;">
-                <img src="../static/images/itu_acm.png" class="card-img-top" alt="..." width="300" height="200">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                        additional content. This content is a little bit longer.</p>
-                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+
+
+
+
+<div class="wrapclubs">
+    <div class="searchclubs">
+        <input type="text" class="searchTermclubs" placeholder="Which club are you looking for?" onkeyup="myFunction()"
+            title="Type in a club name" id="myInput">
+        <button type="submit" class="searchButtonclubs" disabled="true">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</div>
+
+
+
+<div id="clubs">
+    <table id="myTable">
+        <tr class="header">
+            <th style="width:100%;"></th>
+        </tr>
+
+        {% for club in clubs %}
+        <tr>
+            <td>
+                <br>
+                <div class="card mb-3" style="width: 100%;">
+                    <a href="{{ url_for('club_page', club_id=club[0]) }}"> <img src='{{club[8]}}' class="card-img-top"
+                            alt="club image" width="250" height="250"></a>
+                    <div class="card-body">
+
+                        <h5 class="card-title club-card" id="club-name">{{club[1]}}</h5>
+
+                        <p class="card-text">{{club[5]}}</p>
+                        <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                    </div>
                 </div>
-            </div>
-        </ul>
+            </td>
+        </tr>
+
         {% endfor %}
-    </li>
-</ul>
+    </table>
+
+</div>
+
+
+<script>
+    function myFunction() {
+        var input, filter, table, tr, td, i;
+        var txtVal = "";
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        var h5 = document.querySelectorAll(".club-card")
+        console.log(h5);
+        console.log(tr);
+        for (var i = 0; i < h5.length; i++) {
+            //td = tr[i].getElementsByTagName("td")
+            txtVal = h5[i].innerHTML;
+            if (txtVal.toUpperCase().indexOf(filter) > -1) {
+                tr[i + 1].style.display = "";
+            } else {
+                tr[i + 1].style.display = "none";
+            }
+
+        }
+
+    }
+</script>
+
+
+{% endblock %}
+{% block script %}
+
 {% endblock %}

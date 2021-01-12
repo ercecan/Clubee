@@ -16,40 +16,41 @@
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <!--kendi css lerin buraya gelsin-->
-    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="{{url_for('static',filename='main.css')}}" />
 
     <!-- Icons in footer and navbar-->
     <script src="https://kit.fontawesome.com/7b80f74f66.js" crossorigin="anonymous"></script>
 
-    <script>
-        function delete_comment() {
-            const checked = document.querySelectorAll('input[name="comment_name"]:checked');
-            if (checked)
-                console.log(checked)
-            else
-                console.log("null")
-            //fetch('/deletecomment', { body: checked, method: 'POST' })
-            //    .then(response => response.json())
-        }
-    </script>
+
 
 </head>
 
-<body style="background-image: url(../static/images/hex_background.png);">
+<body style="background-image: url({{ url_for('static', filename='images/hex_background.png') }});">
     <header>
         <!--- Navbar --->
         <nav class="navbar navbar-expand-lg">
             <!--style="background: rgba(0,0,0,1);"-->
             <div class="container">
                 <a class="navbar-brand text-white" href="{{ url_for('home_page') }}">
-                    <!-- <i class="fa fa-graduation-cap fa-lg mr-2"></i>--><img src="../static/images/clubee_logo.png"
-                        height="50" width="50">Clubee</a>
+                    <!-- <i class="fa fa-graduation-cap fa-lg mr-2"></i>--><img
+                        src="{{ url_for('static', filename='images/clubee_logo.png') }}" height="50" width="50">Clubee
+                </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nvbCollapse"
                     aria-controls="nvbCollapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="collapse navbar-collapse" id="nvbCollapse">
                     <ul class="navbar-nav ml-auto">
+
+                        {% if current_user.is_admin %}
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('admin_page') }}"><i class="fas fa-user-cog fa-fw mr-1"
+                                    ></i>Admin
+                                Page</a>
+                        </li>
+                        {% endif %}
+                        {% if not current_user.is_admin %}
                         <li class="nav-item pl-1">
                             <a class="nav-link" href="{{ url_for('home_page') }}"><i
                                     class="fa fa-home fa-fw mr-1"></i>Home</a>
@@ -65,6 +66,7 @@
                         <li class="nav-item pl-1">
                             <a class="nav-link" href="#"><i class="fa fa-phone fa-fw fa-rotate-180 mr-1"></i>Contact</a>
                         </li>
+                        {% endif %}
 
                         {% if not current_user.is_authenticated %}
                         <li class="nav-item pl-1">
@@ -83,16 +85,35 @@
                                     class="fa fa-user-plus fa-fw mr-1"></i>Register</a>
                         </li>
 
-                        {% else %}
-                        {{ current_user.student_id }}
+                        {% elif current_user.is_authenticated %}
+                        {% if not current_user.is_admin%}
                         <li class="nav-item pl-1">
-                            <a class="nav-link" href="{{ url_for('logout') }}"><i class="fa fa-sign-out fa-fw mr-1"
-                                    ></i>Logout</a>
+                            <p class="nav-link" href="#">
+
+                                <i class="far fa-smile"></i>Hello {{
+                                current_user.name }}
+                            </p>
                         </li>
+
                         <li class="nav-item pl-1">
                             <a class="nav-link" href="{{ url_for('myclubs_page') }}"><i
                                     class="fa fa-list-alt fa-fw mr-1" ></i>My Clubs</a>
                         </li>
+                        {% else %}
+                        <li class="nav-item pl-1">
+                            <p class="nav-link" href="#">
+
+                                <i class="far fa-smile"></i>Hello {{current_user.nickname}}
+                            </p>
+                        </li>
+
+
+                        {% endif %}
+                        <li class="nav-item pl-1">
+                            <a class="nav-link" href="{{ url_for('logout') }}"><i class="fa fa-sign-out fa-fw mr-1"
+                                    ></i>Logout</a>
+                        </li>
+
                         {% endif %}
 
                     </ul>
@@ -109,9 +130,6 @@
 
 
     {%block content%} {%endblock%}
-    {% if current_user.is_admin %}
-    <h3>you are admin</h3>
-    {% endif %}
     <hr>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -122,13 +140,11 @@
     </ul>
     {% endif %}
     {% endwith %}
-    {% if current_user.is_admin %}
-    <h4 style="color: blueviolet;">you admin boy</h4>
-    {% endif %}
+
 
 
     <!--- Footer --->
-    <footer>
+    <footer style="width:100% ; position: relative; top:1600px;">
         <div class="jumbotron jumbotron-fluid bg-secondary p-4 mt-5 mb-0">
             <div class="container">
                 <div class="row">
@@ -182,7 +198,7 @@
     </footer>
     <!--# Footer #-->
 
-
+    {% block script %}{% endblock %}
 
     <!--bootstrap js and jquery links-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"

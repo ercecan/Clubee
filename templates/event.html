@@ -1,5 +1,5 @@
 <!-- create a fake join button and user_count -->
-{%extends "base.html"%}
+{% extends "base.html" %}
 {% block title %}
 
 event
@@ -56,10 +56,10 @@ event
             <input type="checkbox" name="comment_name" value="{{comment[0]}}" />
         </label>
         <!--eğer kullanıcının kendi yorumuysa silebilecek-->
-        <p>yorumu silebilrsin</p>
+        <p>You can delete your comments</p>
         {% endif %}
         <ul>
-            <p>{{comment[5]}} {{comment[6]}}</p>
+            <p><b>Author: </b>{{comment[5]}} {{comment[6]}}</p>
             <div id="comment"
                 style="border: cadetblue; border-radius: 5%; border-style:solid; border-color: lightblue; width: 20%; height:100px; overflow: auto;">
                 <p>{{comment[3]}} </p>
@@ -79,4 +79,4 @@ event
 {% else %}
 <p>No Comments Made</p>
 {% endif %}
-{%endblock%}
+{% endblock %}

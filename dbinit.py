@@ -14,7 +14,7 @@ def read_sql_from_file(filename):
 def initialize():
     try:
         with dbapi2.connect(
-                Config.db_url
+                Config.db_url, sslmode='require'
         ) as connection:  ##### , sslmode='require' heroku için parametrelere ekle
             with connection.cursor() as cursor:
                 print("Connected...")

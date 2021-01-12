@@ -23,7 +23,7 @@ def create_app():
     ####app = bilmem ne bilmem ne burda vercen
     app.config.from_object(Config)
     #app.config.from_object("settings")
-    #########################################initialize()   ##heroku için commenti kaldır
+    initialize()  ##heroku için commenti kaldır
     app.add_url_rule("/", view_func=views.home_page)
     app.add_url_rule("/index", view_func=views.home_page)
     app.add_url_rule("/home", view_func=views.home_page)
@@ -73,30 +73,9 @@ def create_app():
     app.add_url_rule("/adminpage/editevent/<int:event_id>",
                      view_func=views.edit_event_page,
                      methods=["GET", "POST"])
-    app.add_url_rule("/asd",
-                     view_func=views.upload_file,
-                     methods=['GET', 'POST'])
-
-    # @app.route('/deletecomment')
-    # def deletecomment():
-    #     checked_boxes = request.body
-    #     try:
-    #         with dbapi2.connect(Config.db_url) as connection:
-    #             with connection.cursor() as cursor:
-    #                 for checked_box in checked_boxes:
-    #                     del_comment_statement = """DELETE FROM comments WHERE id = """ + str(
-    #                         checked_box.value)
-    #                     cursor.execute(del_comment_statement)
-    #                     connection.commit()
-    #                 return "success"
-    #     except (Exception, dbapi2.Error) as error:
-    #         print("Error while connecting to PostgreSQL: {}".format(error))
-    #     flash('Your selected comment(s) have been deleted')
-    """
-    app.add_url_rule("/clubs/<int:club_id>/events/<int:event_id>/comment",
-                     view_func=views.comment,
-                     methods=["POST"])
-    """
+    # app.add_url_rule("/asd",
+    #                  view_func=views.upload_file,
+    #                  methods=['GET', 'POST'])
 
     lm.init_app(app)
     lm.login_view = "admin_login"
@@ -108,29 +87,7 @@ def create_app():
     """
 
     db = Database()
-    """
-    db.add_club(
-        Club("ITU ACM",
-             description="singing",
-             history="asd",
-             announcements=["announcement1", "announcement2"],
-             events=["event1", "event2"],
-             vision="vision",
-             mission="mission",
-             student_count=2,
-             image_url="../static/images/itu_acm.png"))
 
-    db.add_club(
-        Club("ITU IEEE",
-             description="IEEE",
-             history="old",
-             announcements=["IEEEannouncement1", "IEEEannouncement2"],
-             events=["IEEEevent1", "IEEEevent2"],
-             vision="IEEEvision",
-             mission="IEEEmission",
-             student_count=2,
-             image_url="../static/images/itu_ieee.png"))
-    """
     app.config["db"] = db
     return app
 

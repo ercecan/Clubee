@@ -6,7 +6,8 @@ from config import Config
 class Database:
     def __init__(self):
         self.conn = dbapi2.connect(
-            Config.db_url)  #FOR HEROKU add to paramters: sslmode='require'
+            Config.db_url,
+            sslmode='require')  #FOR HEROKU add to paramters: sslmode='require'
         self.clubs = {}
         self.announcements = {}
         self.events = {}
@@ -200,15 +201,16 @@ class Database:
                 for ev in event:
                     event_.append(ev)
                 if event:
-                    if ev[5] != "" and ev[5]:
+                    if event_[5] != "" and event_[5]:
                         event_[5] = "data:image/png;base64," + event_[5]
+                    return event_
                 else:
                     return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcement {}".format(error))
 
     def get_clubs(self):
-        query_select = "SELECT * FROM clubs"
+        query_select = "SELECT * FROM clubs ORDER BY student_count DESC"
         clubs = []
         with self.conn.cursor() as curr:
             curr.execute(query_select)

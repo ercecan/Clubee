@@ -17,10 +17,16 @@ import base64
 from PIL import Image
 from io import BytesIO
 
-connection = dbapi2.connect(Config.db_url)  #sslmode='require' for heroku
+connection = dbapi2.connect(Config.db_url,
+                            sslmode='require')  #sslmode='require' for heroku
 
 
 def home_page():
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     try:
         db = current_app.config["db"]
         announcements = db.get_announcements(all=False)
@@ -30,6 +36,11 @@ def home_page():
 
 
 def clubs_page():
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     db = current_app.config["db"]
     clubs = db.get_clubs()
     return render_template("clubs.html", clubs=clubs)
@@ -37,6 +48,11 @@ def clubs_page():
 
 @login_required
 def myclubs_page():
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     if current_user.is_admin:
         print("Admins are not allowed")
         abort(404)
@@ -48,12 +64,22 @@ def myclubs_page():
 
 
 def announcements_page():  #announcements page
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     db = current_app.config["db"]
     announcements = db.get_announcements(all=True)
     return render_template("announcements.html", announcements=announcements)
 
 
 def club_page(club_id):
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     db = current_app.config["db"]
     club = db.get_club(club_id)
     annonucements = db.get_announcements(club_id)
@@ -74,6 +100,11 @@ def club_page(club_id):
 
 
 def login():
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     form = LoginForm()
     if form.validate_on_submit():
         student_id = form.data["username"]
@@ -87,20 +118,6 @@ def login():
                 return redirect(next_page)
         flash("Invalid credentials.")
     return render_template("login.html", form=form)
-    """
-        """
-
-
-"""
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        flash(
-            'Login requested for student with student ID: {}, remember_me={}'.
-            format(form.username.data, form.remember_me.data))
-        return redirect(url_for('home_page'))
-    return render_template('login.html', title='Sign In', form=form)
-"""
 
 
 def logout():
@@ -110,6 +127,11 @@ def logout():
 
 
 def admin_login():
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     form = AdminLoginForm()
     if form.validate_on_submit():
         nickname = form.data["username"]
@@ -152,22 +174,6 @@ def admin_page():  #announcement ve event sayısını bastır
                     current_user.id)
                 cursor.execute(get_club_info_statement)
                 club_name = cursor.fetchone()
-            # get_admin_announcements_statement = """SELECT * FROM announcements WHERE announcements.club_id =
-            # (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
-            #     current_user.id)
-            # cursor.execute(get_admin_announcements_statement)
-            # announcements = cursor.fetchall()
-            # get_admin_events_statement = """SELECT * FROM events WHERE events.club_id =
-            # (SELECT club_id FROM club_managers WHERE admin_id = {})""".format(
-            #     current_user.id)
-            # cursor.execute(get_admin_events_statement)
-            # events = cursor.fetchall()
-            # events_ = []
-            # for event in events:
-            #     events_.append(event)
-            # for event in events_:
-            #     event[5] = "data:image/png;base64," + event[5]
-
             return render_template('admin_page.html',
                                    announcements=anns,
                                    events=evs,
@@ -210,16 +216,14 @@ def admin_page():  #announcement ve event sayısını bastır
                 print("Error while deleting events: ", e)
         else:
             abort(405)
-    """
-    db = current_app.config["db"]
-    clubs = db.get_clubs()
-    return render_template("admin_page.html",
-                           events=events,
-                           announcements=announcements)
-    """
 
 
 def register():
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     if current_user.is_authenticated:
         return redirect(url_for('home_page'))
     form = RegistrationForm()
@@ -249,6 +253,11 @@ def register():
 def join_club(
     club_id
 ):  ##club ismiyle selectleyip clubid yi gönder ya da clubs db classı oluştur
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
@@ -256,21 +265,19 @@ def join_club(
             if not is_member(current_user.id, club_id):
                 join_statement = """INSERT INTO members (user_id, club_id) VALUES (%(user_id)s, %(club_id)s);"""
                 data = {'user_id': current_user.id, 'club_id': club_id}
-
                 cursor.execute(join_statement, data)
-                ##connection.commit()  bu lazım mı ?
                 #user_id = cursor.fetchone()
                 update_statement = """UPDATE clubs  SET student_count = student_count + 1 WHERE id = %(club_id)s;"""
                 cursor.execute(update_statement, {'club_id': str(club_id)})
                 connection.commit()
-                return redirect(url_for('clubs_page'))
-                return redirect(url_for('clubs_page'))
+                return redirect(url_for('myclubs_page'))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
 
 
 @login_required
 def leave_club(club_id):
+
     if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
@@ -281,39 +288,49 @@ def leave_club(club_id):
                 leave_statement = """DELETE FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
                 data = {'user_id': current_user.id, 'club_id': club_id}
                 cursor.execute(leave_statement, data)
-                ##connection.commit() bu lazım mı ?
-                #user_id = cursor.fetchone()[0]
                 update_statement = """UPDATE clubs SET student_count = student_count - 1 WHERE id = %(club_id)s;"""
                 data = {'club_id': club_id}
                 cursor.execute(update_statement, data)
                 connection.commit()
-                return redirect(url_for('clubs_page'))
+                return redirect(url_for('myclubs_page'))
             return redirect(url_for('clubs_page'))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
 
 
 def announcement_page(club_id, ann_id):
-    db = current_app.config["db"]
-    club = db.get_club(club_id)
-    if club is None:
-        abort(404)
-    _announcement = db.get_announcement(ann_id=ann_id)
-    #print("a")
-    if _announcement is None:
-        abort(404)
-    return render_template("announcement.html", announcement=_announcement)
-
-
-###burda task="" versen
-#sonra if task == ""
-#geteventpage
-#      if task == "comment"
-#url_for(event_page,task="comment")
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
+    try:
+        db = current_app.config["db"]
+        club = db.get_club(club_id)
+        if club is None:
+            abort(404)
+        _announcement = db.get_announcement(ann_id=ann_id)
+        if _announcement is None:
+            abort(404)
+        with connection.cursor() as cursor:
+            get_name_statement = "SELECT  clubs.name FROM clubs LEFT JOIN announcements ON clubs.id = announcements.club_id WHERE announcements.club_id = {};".format(
+                _announcement[1])
+            cursor.execute(get_name_statement)
+            club_name = cursor.fetchone()
+        return render_template("announcement.html",
+                               announcement=_announcement,
+                               club_name=club_name[0])
+    except Exception as e:
+        print("error while getting ann page", e)
 
 
 @login_required
 def event_page(club_id, event_id):
+    if current_user.is_anonymous:
+        pass
+    else:
+        if current_user.is_admin:
+            return redirect(url_for("admin_page"))
     if not current_user.is_authenticated:
         return redirect(url_for('login_page'))
     if not is_member(club_id=club_id, user_id=current_user.id):
@@ -373,13 +390,8 @@ def event_page(club_id, event_id):
                     add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at) 
                                                 VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""
                     cursor.execute(add_comment_statement, comment_data)
-                    # get_event_statement = """SELECT * FROM events where event_id = %(event_id)i"""
-                    # data = {'event_id': event_id}
-                    # cursor.execute(get_event_statement, data)
-                    # _event = cursor.fetchone()
                     connection.commit()
                     flash('Your comment has been posted')
-                    #comment_id = cursor.fetchone()[0]
                     return redirect(
                         url_for('event_page',
                                 club_id=club_id,
@@ -391,37 +403,6 @@ def event_page(club_id, event_id):
                 url_for('event_page', club_id=club_id, event_id=event_id))
     else:
         abort(405)  #Method not allowed
-
-
-# def comment(user_id, event_id):
-#     if not current_user.is_authenticated:
-#         return redirect(url_for('login_page'))
-#     form = CommentForm()
-#     if form.validate_on_submit():
-#         content = form.data["content"]
-#         comment_data = {
-#             'event_id': event_id,
-#             'user_id': user_id,
-#             'content': content,
-#             'created_at': datetime.now()
-#         }
-#         try:
-#             with dbapi2.connect(Config.db_url) as connection:
-#                 with connection.cursor() as cursor:
-#                     add_comment_statement = """INSERT INTO comments (event_id, user_id, content, created_at)
-#                                                 VALUES (%(event_id)s,%(user_id)s,%(content)s,%(created_at)s)"""
-#                     cursor.execute(add_comment_statement, comment_data)
-#                     get_event_statement = """SELECT * FROM events where event_id = %(event_id)s"""
-#                     _event = cursor.fetchone()
-#                     connection.commit()
-#                     #comment_id = cursor.fetchone()[0]
-#                     return render_template('event.html', event=_event)
-#         except (Exception, dbapi2.Error) as error:
-#             print("Error while connecting to PostgreSQL: {}".format(error))
-#         flash('Your comment has been posted')
-#         return redirect(url_for('login'))
-#     else:
-#         return redirect(url_for('clubs_page'))
 
 
 @login_required
@@ -444,7 +425,6 @@ def add_announcement_page():
         db.add_announcement(ann, current_user.id)
         flash('announcement added to the database')
         return redirect(url_for("admin_page"))
-
     return render_template("ann_add.html", form=form)
 
 
@@ -563,78 +543,48 @@ def edit_event_page(event_id):
         print(e)
 
 
-"""
-@login_required
-def edit_announcement():
-"""
-"""
-@login_required
-def delete_announcement():
-"""
-"""
-@login_required
-def add_event():
-"""
-"""
-@login_required
-def edit_event():
-"""
-"""
-@login_required
-def delete_event():
-"""
+# def upload_file():
+#     fi = None
+#     if request.method == 'POST':
+#         # check if the post request has the file part
 
-# def pil2datauri(img):
-#     #converts PIL image to datauri
-#     data = BytesIO()
-#     data = data.co
-#     img.save(data, "RGB")
-#     data64 = base64.b64encode(data.getvalue())
-#     return u'data:img/jpeg;base64,' + data64.decode('utf-8')
+#         if 'file' not in request.files:
+#             flash('No file part')
+#             return redirect(request.url)
+#         with connection.cursor() as cursor:
+#             x = request.files["file"].read()
+#             binary = dbapi2.Binary(x)
+#             # img = Image.open(request.files['file'].stream)
+#             #ima = pil2datauri(img)
+#             # bg = Image.new("RGB", img.size, (255, 255, 255))
+#             # bg.paste(img, img)
+#             #print(x)
+#             cursor.execute("insert into pic_test (blob) values (%s)",
+#                            (binary, ))
+#             connection.commit()
+#             select_blob_statement = "select encode(pic_test.blob, 'base64') as your_alias_name from pic_test where id = 1"
+#             cursor.execute(select_blob_statement)
+#             base64_img = cursor.fetchone()
+#             #image = base64.b64encode(img.tobytes())
+#             #print(fi[0])
+#             # with open("static/images/file.jpg", "wb") as f:
+#             #     f.write(fi[0])
+#             img = "data:image/png;base64," + base64_img[0]
+#             return render_template('pt.html', img=img)
 
-
-def upload_file():
-    fi = None
-    if request.method == 'POST':
-        # check if the post request has the file part
-
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        with connection.cursor() as cursor:
-            x = request.files["file"].read()
-            binary = dbapi2.Binary(x)
-            # img = Image.open(request.files['file'].stream)
-            #ima = pil2datauri(img)
-            # bg = Image.new("RGB", img.size, (255, 255, 255))
-            # bg.paste(img, img)
-            #print(x)
-            cursor.execute("insert into pic_test (blob) values (%s)",
-                           (binary, ))
-            connection.commit()
-            select_blob_statement = "select encode(pic_test.blob, 'base64') as your_alias_name from pic_test where id = 1"
-            cursor.execute(select_blob_statement)
-            base64_img = cursor.fetchone()
-            #image = base64.b64encode(img.tobytes())
-            #print(fi[0])
-            # with open("static/images/file.jpg", "wb") as f:
-            #     f.write(fi[0])
-            img = "data:image/png;base64," + base64_img[0]
-            return render_template('pt.html', img=img)
-
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        # if file.filename == '':
-        #     flash('No selected file')
-        #     return redirect(request.url)
-        # if file and allowed_file(file.filename):
-        #     filename = secure_filename(file.filename)
-        #     with connection.cursor() as cursor:
-        #         a = "insert into pic_test (blob) values ({})".format(file)
-        #         cursor.execute(a)
-        #         connection.commit()
-        #         # file.save(
-        #         #     os.path.join(current_app.config['UPLOAD_FOLDER'],
-        #         #                  filename))
-        #         return redirect(url_for('uploaded_file', filename=filename))
-    return render_template('pt.html', fi=fi)
+#         # if user does not select file, browser also
+#         # submit an empty part without filename
+#         # if file.filename == '':
+#         #     flash('No selected file')
+#         #     return redirect(request.url)
+#         # if file and allowed_file(file.filename):
+#         #     filename = secure_filename(file.filename)
+#         #     with connection.cursor() as cursor:
+#         #         a = "insert into pic_test (blob) values ({})".format(file)
+#         #         cursor.execute(a)
+#         #         connection.commit()
+#         #         # file.save(
+#         #         #     os.path.join(current_app.config['UPLOAD_FOLDER'],
+#         #         #                  filename))
+#         #         return redirect(url_for('uploaded_file', filename=filename))
+#     return render_template('pt.html', fi=fi)

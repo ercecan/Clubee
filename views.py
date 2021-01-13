@@ -508,6 +508,7 @@ def edit_event_page(event_id):
         form = EventForm()
         db = current_app.config["db"]
         event = db.get_event_info(event_id)
+        img_update = True
         if form.validate_on_submit():
             header = form.data["header"]
             content = form.data["content"]

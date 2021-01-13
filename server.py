@@ -23,7 +23,7 @@ def create_app():
     ####app = bilmem ne bilmem ne burda vercen
     app.config.from_object(Config)
     #app.config.from_object("settings")
-    initialize()  ##heroku için commenti kaldır
+    #initialize()  ##heroku için commenti kaldır
     app.add_url_rule("/", view_func=views.home_page)
     app.add_url_rule("/index", view_func=views.home_page)
     app.add_url_rule("/home", view_func=views.home_page)

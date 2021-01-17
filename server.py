@@ -79,6 +79,9 @@ def create_app():
     app.add_url_rule("/adminpage/editevent/<int:event_id>",
                      view_func=views.edit_event_page,
                      methods=["GET", "POST"])
+    app.add_url_rule("/profile/<int:user_id>",
+                     view_func=views.profile,
+                     methods=["GET", "POST"])
     # app.add_url_rule("/asd",
     #                  view_func=views.upload_file,
     #                  methods=['GET', 'POST'])

@@ -90,8 +90,11 @@
                         <li class="nav-item pl-1">
                             <p class="nav-link" href="#">
 
-                                <i class="far fa-smile"></i>Hello {{
-                                current_user.name }}
+                                <a style="text-decoration: none;"
+                                    href="{{url_for('profile',user_id=current_user.id)}}"><i class="fa fa-user"
+                                        aria-hidden="true"></i>
+                                    Hello {{
+                                    current_user.name }}</a>
                             </p>
                         </li>
 

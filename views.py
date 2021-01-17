@@ -5,7 +5,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, l
 from user import get_user
 from passlib.hash import pbkdf2_sha256 as hasher
 import psycopg2 as dbapi2
-from user import User, is_member
+from user import User, is_member, delete_user
 from config import Config
 from database import Database
 from models import Announcement, Event
@@ -80,7 +80,14 @@ def clubs_page():
             str1 = " "
             x = str1.join(areas)
             all_areas.append(x)
-        return render_template("clubs.html", clubs=clubs, areas=all_areas)
+        # /* alana gore kayıtlı kulup sayısı*/
+        st = """select areas.area ,count(clubs.name)from areas left join clubs on clubs.id = areas.club_id group by area"""
+        cursor.execute(st)
+        club_area_n = cursor.fetchall()
+        return render_template("clubs.html",
+                               clubs=clubs,
+                               areas=all_areas,
+                               club_area=club_area_n)
     except Exception as e:
         print("Error while getting clubs page: ", e)
 
@@ -581,6 +588,20 @@ def edit_event_page(event_id):
         return render_template("event_edit.html", form=form, img=image)
     except Exception as e:
         print(e)
+
+
+@login_required
+def profile(user_id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    if current_user.is_admin:
+        abort(401)
+    if request.method == 'GET':
+        return render_template('profile.html')
+    elif request.method == 'POST':
+        logout_user()
+        delete_user(user_id=user_id)
+        return redirect(url_for('register'))
 
 
 # def upload_file():

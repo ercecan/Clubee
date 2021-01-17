@@ -1,4 +1,23 @@
 {%extends "base.html"%} {% block title %}Clubs{% endblock %} {% block content %}
+<style>
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 15px;
+        text-align: left;
+    }
+
+    #t01 {
+        width: 100%;
+        background-color: #f1f1c1;
+    }
+</style>
 <h1 style="text-align: center; font-family: sans-serif; color: cadetblue; padding: bottom 100px; ;">The Joyful
     Clubs of ITU</h1>
 
@@ -48,6 +67,31 @@
 
 </div>
 
+<div style="top: 400px; position: relative;">
+    <p>Clubs and Areas!</p>
+    <table id="t01">
+        <tr>
+            <th>
+                areas
+            </th>
+            <th>
+                number of clubs
+            </th>
+        </tr>
+        {% for c in club_area %}
+        <tr>
+            <td>
+                {{c[0]}}
+            </td>
+            <td>
+                {{c[1]}}
+            </td>
+        </tr>
+
+        {% endfor %}
+    </table>
+
+</div>
 
 <script>
     function myFunction() {

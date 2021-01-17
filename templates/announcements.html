@@ -3,6 +3,7 @@ content %}
 
 
 {% if announcements %}
+
 <div
     style=" margin-top: 1%; margin-bottom: 1%; padding-bottom: 1%; padding-top: 1%; position: relative; left: 34%; border-radius: 10px;  border-width: 5px;border: solid; border-color: cyan; border-width:0 1 px; width: 30%;">
     <h1
@@ -10,34 +11,81 @@ content %}
         Announcements
     </h1>
 </div>
+<div class="wrapanns">
+    <div class="searchclubs">
+        <input type="text" class="searchTermclubs" placeholder="Are you looking for an announcement?"
+            onkeyup="myFunction()" title="Type in a club name" id="myInput">
+        <button type="submit" class="searchButtonclubs" disabled="true">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</div>
+
+
+
+
 <div id="announcements">
-    <ul style="list-style: none;">
+    <table id="myTable">
         {% for ann in announcements %}
-        <li>
-            <div class="card text-center" style="width: 90%; ;">
-                <div class="card-header">
-                    Featured
+        <tr>
+            <td>
+                <div class="card text-center" style="width: 90%; ;">
+                    <div class="card-header">
+                        Featured
+                    </div>
+                    <div class="card-body" style="padding: 0.5rem;">
+                        <h4 class="card-title ann-card">{{ann[2]}}</h4>
+                        <p class="card-text">{{ann[2]}}</p>
+                        <div style="padding-top: 1rem; padding-bottom: 1rem;"><img src="{{ann[4]}}" width="700"
+                                height="300"></div>
+                        <a href="{{url_for('announcement_page',ann_id=ann[0],club_id=ann[1])}}"
+                            class="btn btn-primary">Detail</a>
+                    </div>
+                    <div class="card-footer text-muted">
+                        2 days ago
+                    </div>
                 </div>
-                <div class="card-body" style="padding: 0.5rem;">
-                    <h4 class="card-title">{{ann[2]}}</h4>
-                    <p class="card-text">{{ann[2]}}</p>
-                    <div style="padding-top: 1rem; padding-bottom: 1rem;"><img src="{{ann[4]}}" width="700"
-                            height="300"></div>
-                    <a href="{{url_for('announcement_page',ann_id=ann[0],club_id=ann[1])}}"
-                        class="btn btn-primary">Detail</a>
-                </div>
-                <div class="card-footer text-muted">
-                    2 days ago
-                </div>
-            </div>
-            <br>
-        </li>
+                <br>
+            </td>
+        </tr>
 
         {% endfor %}
-    </ul>
+    </table>
     {% endif %}
+
+
 </div>
+
+
+<script>
+    function myFunction() {
+        var input, filter, table, tr, td, i;
+        var txtVal = "";
+        var areas = "";
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        var h4 = document.querySelectorAll(".ann-card");
+        console.log(h4);
+        for (var i = 0; i < h4.length; i++) {
+            //td = tr[i].getElementsByTagName("td")
+            txtVal = h4[i].innerHTML;
+            if (txtVal.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+
+        }
+
+    }
+</script>
+
 {% if not announcements %}
 <h3>There are currently no announcements...</h3>
 {% endif %}
+
+
+
 {%endblock%}

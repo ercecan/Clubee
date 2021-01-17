@@ -17,8 +17,7 @@ import base64
 from PIL import Image
 from io import BytesIO
 
-connection = dbapi2.connect(Config.db_url,
-                            sslmode='require')  #sslmode='require' for heroku
+connection = dbapi2.connect(Config.db_url)  #sslmode='require' for heroku
 
 
 def home_page():
@@ -30,7 +29,30 @@ def home_page():
     try:
         db = current_app.config["db"]
         announcements = db.get_announcements(all=False)
-        return render_template("index.html", announcements=announcements)
+        with connection.cursor() as cursor:
+            # /* alana gore kayıtlı kulup sayısı*/
+            st = """select areas.area ,count(clubs.name)from areas left join clubs on clubs.id = areas.club_id group by area"""
+            cursor.execute(st)
+            club_area_n = cursor.fetchall()
+            # /*total kulup sayısı*/
+            st = """select count(id) from clubs"""
+            cursor.execute(st)
+            club_number = cursor.fetchone()
+            # /* kuluplere katılan unique ogrenci sayısı */
+            st = """select count(distinct user_id) from members"""
+            cursor.execute(st)
+            unique_member_num = cursor.fetchone()
+            # /*toplam kulup katılımı*/
+            st = """select count(user_id) from members"""
+            cursor.execute(st)
+            total_participation = cursor.fetchone()
+
+        return render_template("index.html",
+                               announcements=announcements,
+                               c_num=club_area_n,
+                               c_m=club_number,
+                               u_m=unique_member_num,
+                               t_p=total_participation)
     except Exception as e:
         print("Error while getting home page: ", e)
 
@@ -41,9 +63,26 @@ def clubs_page():
     else:
         if current_user.is_admin:
             return redirect(url_for("admin_page"))
-    db = current_app.config["db"]
-    clubs = db.get_clubs()
-    return render_template("clubs.html", clubs=clubs)
+    try:
+        db = current_app.config["db"]
+        clubs = db.get_clubs()
+        all_areas = []
+        cursor = connection.cursor()
+        for club in clubs:
+            club_id = club[0]
+            area_statement = """SELECT area FROM areas WHERE club_id = {}""".format(
+                str(club_id))
+            cursor.execute(area_statement)
+            area = cursor.fetchall()
+            areas = []
+            for ar in area:
+                areas.append(ar[0])
+            str1 = " "
+            x = str1.join(areas)
+            all_areas.append(x)
+        return render_template("clubs.html", clubs=clubs, areas=all_areas)
+    except Exception as e:
+        print("Error while getting clubs page: ", e)
 
 
 @login_required

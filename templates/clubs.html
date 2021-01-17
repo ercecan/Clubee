@@ -24,7 +24,7 @@
             <th style="width:100%;"></th>
         </tr>
 
-        {% for club in clubs %}
+        {% for area,club in zip(areas,clubs) %}
         <tr>
             <td>
                 <br>
@@ -34,6 +34,7 @@
                     <div class="card-body">
 
                         <h5 class="card-title club-card" id="club-name">{{club[1]}}</h5>
+                        <h6 class="areas">{{area}} </h6>
 
                         <p class="card-text">{{club[5]}}</p>
                         <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
@@ -52,17 +53,21 @@
     function myFunction() {
         var input, filter, table, tr, td, i;
         var txtVal = "";
+        var areas = "";
         input = document.getElementById("myInput");
         filter = input.value.toUpperCase();
         table = document.getElementById("myTable");
         tr = table.getElementsByTagName("tr");
-        var h5 = document.querySelectorAll(".club-card")
+        var h5 = document.querySelectorAll(".club-card");
+        var h6 = document.querySelectorAll(".areas");
         console.log(h5);
+        console.log(h6);
         console.log(tr);
         for (var i = 0; i < h5.length; i++) {
             //td = tr[i].getElementsByTagName("td")
             txtVal = h5[i].innerHTML;
-            if (txtVal.toUpperCase().indexOf(filter) > -1) {
+            areas = h6[i].innerHTML;
+            if ((txtVal.toUpperCase().indexOf(filter) > -1) || (areas.toUpperCase().indexOf(filter) > -1)) {
                 tr[i + 1].style.display = "";
             } else {
                 tr[i + 1].style.display = "none";

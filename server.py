@@ -6,6 +6,10 @@ from config import Config
 from flask_login import LoginManager
 from user import get_user
 from dbinit import initialize
+import jinja2
+env = jinja2.Environment()
+env.globals.update(zip=zip)
+# use env to load template(s)
 
 lm = LoginManager()
 
@@ -20,6 +24,8 @@ def load_user(
 def create_app():
 
     app = Flask(__name__)
+    app.jinja_env.globals.update(
+        zip=zip)  ####required to use 'zip' functionality in jinja
     ####app = bilmem ne bilmem ne burda vercen
     app.config.from_object(Config)
     #app.config.from_object("settings")

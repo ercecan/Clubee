@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, validators
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from user import get_user
 from flask import g
@@ -9,21 +9,35 @@ from flask_wtf.file import FileField
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Student ID', validators=[DataRequired()])
+    username = StringField(
+        'Student ID',
+        validators=[
+            DataRequired(),
+            Length(min=9,
+                   max=9,
+                   message="Your Student ID Should Be 9 Characters Long")
+        ],
+        render_kw={'autofocus': True})
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
 
 class AdminLoginForm(FlaskForm):
-    username = StringField('Nickname', validators=[DataRequired()])
+    username = StringField(
+        'Nickname',
+        validators=[DataRequired()],
+        render_kw={'autofocus': True},
+    )
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In as Admin')
 
 
 class RegistrationForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
+    name = StringField('Name',
+                       validators=[DataRequired()],
+                       render_kw={'autofocus': True})
     surname = StringField('Surname', validators=[DataRequired()])
     student_id = StringField('Student ID', validators=[
         DataRequired(),

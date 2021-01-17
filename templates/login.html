@@ -2,18 +2,18 @@
 {% block title %} Login {% endblock %}
 {% block content %}
 <div class="login">
-    <h1>Sign In</h1>
+    <h1 style="padding-bottom: 2rem; padding-right: 2rem; color: olivedrab; width: 20%;">Sign In To Clubee</h1>
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         <p>
-            {{ form.username.label }}<br>
+            {{ form.username.label(class_="label") }}<br>
             {{ form.username(class_="nickname") }}
             {% for error in form.username.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
-            {{ form.password.label }}<br>
+            {{ form.password.label(class_="label") }}<br>
             {{ form.password(size=64,class_="password") }}
             {% for error in form.password.errors %}
             <span style="color: red;">[{{ error }}]</span>

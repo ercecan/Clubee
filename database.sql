@@ -106,3 +106,13 @@ FOREIGN KEY (user_id) REFERENCES users (id)
 ON DELETE CASCADE
 ON UPDATE CASCADE
 );
+
+
+CREATE TABLE areas (
+    club_id INTEGER NOT NULL,
+    area VARCHAR(30) NOT NULL,
+    PRIMARY KEY (club_id, area),
+    FOREIGN KEY (club_id) REFERENCES clubs (id) 
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);

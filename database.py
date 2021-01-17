@@ -6,8 +6,7 @@ from config import Config
 class Database:
     def __init__(self):
         self.conn = dbapi2.connect(
-            Config.db_url,
-            sslmode='require')  #FOR HEROKU add to paramters: sslmode='require'
+            Config.db_url)  #FOR HEROKU add to paramters: sslmode='require'
         self.clubs = {}
         self.announcements = {}
         self.events = {}

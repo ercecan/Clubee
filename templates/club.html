@@ -43,11 +43,12 @@
 
     <tr>
         {% if current_user.is_authenticated%}
+        {% if not current_user.id == member[0] %}
         <th>Click the button to join the club</th>
-
+        {% endif %}
 
         {% if current_user.id == member[0] %}
-
+        <th>Click the button to leave the club</th>
         <td>
             <form action="{{url_for('leave_club', club_id = club[0])}}" method="post">
                 <label for="leave"></label>

@@ -76,7 +76,7 @@ class RegistrationForm(FlaskForm):
 
     def validate_email(self, email):
         user = get_user(
-            email=email
+            email=str(email.data)
         )  ##email kontrol eden query bu email varsa başka email seçtircen
         if user is not None:
             raise ValidationError('Please use a different email address.')
@@ -86,6 +86,58 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError(
                 'There already is a student with that student id.')
+
+
+class UserUpdateForm(FlaskForm):
+    name = StringField('Name',
+                       validators=[DataRequired()],
+                       render_kw={'autofocus': True})
+    surname = StringField('Surname', validators=[DataRequired()])
+    student_id = StringField('Student ID', validators=[
+        DataRequired(),
+    ])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    gender = RadioField('Gender',
+                        choices=['Female', 'Male', 'Rather Not Say'],
+                        validators=[DataRequired()])
+    """
+    department = SelectField(u'Your Department in ITU',
+                             choices=[
+                                 ('ce', 'Computer Engineering'),
+                                 ('ai', 'AI and Data Science Engineering'),
+                                 ('ece',
+                                  'Electronics and Communication Engineering'),
+                                 ('ee', 'Electrical Engineering')
+                             ])
+    """
+    submit = SubmitField('Update User')
+
+    ####When you add any methods that match the pattern validate_<field_name>,
+    # WTForms takes those as custom validators and invokes them in addition to the stock validators.
+
+
+def validate_mail(connection, email):
+    try:
+        with connection.cursor() as cursor:
+            if email:
+                q = """select * from users where email = %(email)s"""
+                data = {'email': str(email)}
+                cursor.execute(q, data)
+                user = cursor.fetchone()
+                if user:
+                    return user
+                return None
+    except Exception as e:
+        print("error while validating mail", e)
+
+
+def validate_studentid(connection, student_id):
+    try:
+        user = get_user(user_id=str(student_id))
+        if user is not None:
+            return True
+    except Exception as e:
+        print("error while validating studentid", e)
 
 
 class CommentForm(FlaskForm):

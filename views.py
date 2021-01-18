@@ -1,11 +1,11 @@
 from flask import Flask, render_template, current_app, abort, redirect, request, url_for, flash, session
 from datetime import datetime
-from forms import LoginForm, AdminLoginForm, RegistrationForm, CommentForm, AnnouncementForm, EventForm
+from forms import LoginForm, AdminLoginForm, RegistrationForm, CommentForm, AnnouncementForm, EventForm, UserUpdateForm, validate_mail, validate_studentid
 from flask_login import LoginManager, login_user, logout_user, login_required, login_fresh, current_user  #login_fresh returns true if the login is fresh(yeni)
 from user import get_user
 from passlib.hash import pbkdf2_sha256 as hasher
 import psycopg2 as dbapi2
-from user import User, is_member, delete_user
+from user import User, is_member, delete_user, update_user
 from config import Config
 from database import Database
 from models import Announcement, Event
@@ -400,7 +400,6 @@ def event_page(club_id, event_id):
                                    comments=_comment)
     elif request.method == "POST":
         if 'delete' in request.form:  #task=="delete"
-            print("a")
             form_comments = request.form.getlist("comment_name")
             if not len(form_comments):
                 flash('You have not selected any comments')
@@ -600,13 +599,47 @@ def profile(user_id):
         abort(401)
     try:
         form = UserUpdateForm()
-        user = get_user(user_id=user_id)
+        user = get_user(user_id=current_user.student_id)
         if request.method == 'GET':
-            return render_template('profile.html')
+            form.name.data = user.name
+            form.surname.data = user.surname
+            form.student_id.data = user.student_id
+            form.email.data = user.email
+            #form.department.data = user.department
+            if user.gender:
+                form.gender.data = user.gender
+            return render_template('profile.html', form=form)
         elif request.method == 'POST':
             if form.validate_on_submit():
-                pass
+                name = form.data["name"]
+                surname = form.data["surname"]
+                student_id = form.data["student_id"]
+                if validate_studentid(
+                        connection=connection, student_id=student_id
+                ) is not None and student_id != user.student_id:  ##if the stud id is taken
+                    raise 'This student id is already registered'
+                email = form.data["email"]
+                if validate_mail(
+                        connection=connection, email=email
+                ) is not None and email != user.email:  ##if the email is taken
+                    raise 'This email is already registered'
+                if form.data["gender"]:
+                    gender = form.data["gender"]
+                else:
+                    gender = None
+                x = False
+                if (user.student_id != student_id):
+                    x = True
+                update_user(current_user.id, name, surname, student_id, email,
+                            gender)
+                if x:
+                    flash(
+                        'Your student id is changed, login again with your new id'
+                    )
+                return redirect(url_for('home_page'))
             else:
+                print(form.errors)
+                return "asd"
                 logout_user()
                 delete_user(user_id=user_id)
                 flash('User Deleted')

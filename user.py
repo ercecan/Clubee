@@ -65,7 +65,7 @@ def get_user(user_id=None, email=None):
         with connection.cursor() as cursor:
             if email:
                 q = """select * from users where email = %(email)s"""
-                data = {'email': str(email.data)}
+                data = {'email': str(email)}
                 cursor.execute(q, data)
                 user = cursor.fetchone()
                 if user:
@@ -96,9 +96,9 @@ def get_user(user_id=None, email=None):
                 admin = User(id=_admin[0],
                              nickname=_admin[1],
                              password=_admin[2])
-            if _admin[0] is not None:
-                admin.is_admin = True
-                return admin
+                if _admin[0] is not None:
+                    admin.is_admin = True
+                    return admin
             return None
     except (Exception, dbapi2.Error) as error:
         print("Error while getting user: {}".format(error))
@@ -145,3 +145,22 @@ def delete_user(user_id):
             connection.commit()
     except Exception as e:
         print("Error while deleting user", e)
+
+
+def update_user(id_, name, surname, student_id, email, gender):
+    try:
+        with connection.cursor() as cursor:
+            update_user_statement = """UPDATE users SET name = %(name)s,surname = %(surname)s, 
+            student_id = %(student_id)s, email = %(email)s, gender = %(gender)s WHERE id  = %(id_)s; """
+            data = {
+                'name': name,
+                'surname': surname,
+                'student_id': student_id,
+                'email': email,
+                'gender': gender,
+                'id_': str(id_)
+            }
+            cursor.execute(update_user_statement, data)
+            connection.commit()
+    except Exception as e:
+        print("Error while updating user: ", e)

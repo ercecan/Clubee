@@ -12,8 +12,12 @@ font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 .login{
 
   position: relative;
-  margin-top: 10%;
-  margin-left: 40%;
+  margin:0 auto 0 auto;
+  width: 50%;
+  background: rgb(96,187,247);
+  background: linear-gradient(90deg, rgba(96,187,247,1) 0%, rgba(204,252,247,1) 50%);
+  /* margin-top: 10%;
+  margin-left: 40%; */
 }
 .password{
   width: 20%;

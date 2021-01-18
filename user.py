@@ -7,17 +7,16 @@ connection = dbapi2.connect(Config.db_url)  #sslmode='require' for heroku
 
 
 class User(UserMixin):
-    def __init__(
-        self,
-        password,
-        id=None,
-        nickname=None,
-        student_id=None,
-        email=None,
-        name=None,
-        surname=None,
-        department=None,
-    ):
+    def __init__(self,
+                 password,
+                 id=None,
+                 nickname=None,
+                 student_id=None,
+                 email=None,
+                 name=None,
+                 surname=None,
+                 department=None,
+                 gender=None):
         self.id = id
         self.email = email
         self.name = name
@@ -26,6 +25,7 @@ class User(UserMixin):
         self.nickname = nickname
         self.department = department
         self.password = password
+        self.gender = gender
         self.active = True
         self.is_admin = False
 
@@ -43,13 +43,14 @@ class User(UserMixin):
             'email': self.email,
             'student_id': self.student_id,
             'department': self.department,
-            'password': self.password
+            'password': self.password,
+            'gender': self.gender
         }
 
         try:
             with connection.cursor() as cursor:
-                register_statement = """INSERT INTO users (name, surname, student_id, email, department, password_hash)
-                                            VALUES (%(name)s, %(surname)s, %(student_id)s, %(email)s, %(department)s, %(password)s)
+                register_statement = """INSERT INTO users (name, surname, student_id, email, department, password_hash,gender)
+                                            VALUES (%(name)s, %(surname)s, %(student_id)s, %(email)s, %(department)s, %(password)s,%(gender)s)
                                         RETURNING id;"""
                 cursor.execute(register_statement, user_data)
                 connection.commit()
@@ -59,9 +60,17 @@ class User(UserMixin):
             print("Error while connecting to PostgreSQL: {}".format(error))
 
 
-def get_user(user_id):
+def get_user(user_id=None, email=None):
     try:
         with connection.cursor() as cursor:
+            if email:
+                q = """select * from users where email = %(email)s"""
+                data = {'email': str(email.data)}
+                cursor.execute(q, data)
+                user = cursor.fetchone()
+                if user:
+                    return user
+                return None
             _user = []
             print("getuser")
             get_user_statement = """SELECT * FROM users WHERE student_id = %(user_id)s"""
@@ -75,7 +84,8 @@ def get_user(user_id):
                             surname=_user[3],
                             student_id=_user[4],
                             department=_user[5],
-                            password=_user[6]) if _user[6] else None
+                            password=_user[6],
+                            gender=_user[7]) if _user[6] else None
             if _user:
                 user.is_admin = False  #user.student_id in current_app.config["ADMIN_USERS"]
                 return user

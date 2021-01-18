@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, validators
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, validators, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from user import get_user
 from flask import g
@@ -34,6 +34,12 @@ class AdminLoginForm(FlaskForm):
     submit = SubmitField('Sign In as Admin')
 
 
+departments = [
+    'Computer Engineering', 'Electrical Engineering', 'Mechanical Engineering',
+    'Electronnics&I.E.', 'Industrial Engineering'
+]
+
+
 class RegistrationForm(FlaskForm):
     name = StringField('Name',
                        validators=[DataRequired()],
@@ -43,7 +49,12 @@ class RegistrationForm(FlaskForm):
         DataRequired(),
     ])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    department = StringField('Department', validators=[Optional()])
+    department = SelectField('Department',
+                             choices=departments,
+                             validators=[Optional()])
+    gender = RadioField('Gender',
+                        choices=['Female', 'Male', 'Rather Not Say'],
+                        validators=[DataRequired()])
     """
     department = SelectField(u'Your Department in ITU',
                              choices=[
@@ -60,17 +71,21 @@ class RegistrationForm(FlaskForm):
                                           EqualTo('password')])
     submit = SubmitField('Register')
 
-    def validate_username(self, student_id):
-        user = get_user(user_id=studestudent_id)
-        if user is not None:
-            raise ValidationError('Please use a different username.')
+    ####When you add any methods that match the pattern validate_<field_name>,
+    # WTForms takes those as custom validators and invokes them in addition to the stock validators.
 
-    """
     def validate_email(self, email):
-        user = get_user(email=email)##email kontrol eden query bu email varsa başka email seçtircen
+        user = get_user(
+            email=email
+        )  ##email kontrol eden query bu email varsa başka email seçtircen
         if user is not None:
             raise ValidationError('Please use a different email address.')
-    """
+
+    def validate_student_id(self, student_id):
+        user = get_user(user_id=str(student_id.data))
+        if user is not None:
+            raise ValidationError(
+                'There already is a student with that student id.')
 
 
 class CommentForm(FlaskForm):

@@ -35,8 +35,15 @@
         </p>
         <p>
             {{ form.department.label }}<br>
-            {{ form.department(size=64) }}
+            {{ form.department }}
             {% for error in form.department.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.gender.label }}<br>
+            {{ form.gender }}
+            {% for error in form.gender.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>

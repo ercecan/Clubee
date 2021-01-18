@@ -154,7 +154,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         student_id = form.data["username"]
-        user = get_user(student_id)
+        user = get_user(user_id=student_id)
         if user is not None:
             password = form.data["password"]
             if hasher.verify(password, user.password):
@@ -181,7 +181,7 @@ def admin_login():
     form = AdminLoginForm()
     if form.validate_on_submit():
         nickname = form.data["username"]
-        user = get_user(nickname)
+        user = get_user(user_id=nickname)
         if user is not None:
             password = form.data["password"]
             if hasher.verify(password, user.password):
@@ -278,6 +278,7 @@ def register():
         surname = form.data["surname"]
         student_id = form.data["student_id"]
         email = form.data["email"]
+        gender = form.data["gender"]
         department = form.data["department"]
         password = form.data["password"]
         password_hash = hasher.hash(password)
@@ -286,7 +287,8 @@ def register():
                     student_id=student_id,
                     email=email,
                     department=department,
-                    password=password_hash)
+                    password=password_hash,
+                    gender=gender)
         user.adduser()
         flash('Congratulations, you are now a registered user!')
         flash(f'Account Created for {student_id}! Now You Can Login.',
@@ -316,7 +318,7 @@ def join_club(
                 update_statement = """UPDATE clubs  SET student_count = student_count + 1 WHERE id = %(club_id)s;"""
                 cursor.execute(update_statement, {'club_id': str(club_id)})
                 connection.commit()
-                return redirect(url_for('myclubs_page'))
+                return redirect(url_for('club_page', club_id=club_id))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
 
@@ -338,7 +340,7 @@ def leave_club(club_id):
                 data = {'club_id': club_id}
                 cursor.execute(update_statement, data)
                 connection.commit()
-                return redirect(url_for('myclubs_page'))
+                return redirect(url_for('club_page', club_id=club_id))
             return redirect(url_for('clubs_page'))
     except (Exception, dbapi2.Error) as error:
         print("Error while connecting to PostgreSQL: {}".format(error))
@@ -596,12 +598,21 @@ def profile(user_id):
         return redirect(url_for('login'))
     if current_user.is_admin:
         abort(401)
-    if request.method == 'GET':
-        return render_template('profile.html')
-    elif request.method == 'POST':
-        logout_user()
-        delete_user(user_id=user_id)
-        return redirect(url_for('register'))
+    try:
+        form = UserUpdateForm()
+        user = get_user(user_id=user_id)
+        if request.method == 'GET':
+            return render_template('profile.html')
+        elif request.method == 'POST':
+            if form.validate_on_submit():
+                pass
+            else:
+                logout_user()
+                delete_user(user_id=user_id)
+                flash('User Deleted')
+                return redirect(url_for('register'))
+    except Exception as e:
+        print("Error in profile page", e)
 
 
 # def upload_file():

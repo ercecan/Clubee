@@ -201,4 +201,4 @@ class ClubUpdateForm(FlaskForm):  ##for editing
     #                     'Please upload .png, .jpg or .jpeg file.')
     #     ])
     source = TextAreaField("Source", validators=[DataRequired()])
-    submit = SubmitField('Save Announcement')
+    submit = SubmitField('Save Club Info')

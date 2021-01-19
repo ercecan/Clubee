@@ -22,6 +22,11 @@
         width: 100%;
         background-color: #f1f1c1;
     }
+
+    .clubee-numbers p {
+        font-size: 20px;
+        color: rgb(51, 26, 3);
+    }
 </style>
 <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel"
     style="width: 70%; margin-top: 0.5%; margin-left: 15%;">
@@ -63,44 +68,47 @@
         <span class="visually-hidden">Next</span>
     </a>
 </div>
-<div class="announcements-index"></div>
-<br>
-{% if announcements %}
-<hr>
+<div class="announcements-index">
+    <br>
+    {% if announcements %}
+    <hr>
 
-<h2 id="announcements-header" style="text-align: center; font-family: sans-serif;"> Latetst Announcements</h2>
+    <h2 id="announcements-header" style="text-align: center; font-family: sans-serif;"> Latetst Announcements</h2>
 </div>
 
 
 
-
-<div class="row row-cols-1 row-cols-md-3 g-4" style="width: 70%; margin-top: 0.5%; margin-left: 15%;">
-    {% for ann in announcements %}
-    <div class="col">
-        <div class="card h-100">
-            {% if ann[4] %}
-            <a href="{{url_for('announcement_page',club_id=ann[1],ann_id=ann[0])}}"> <img src='{{ann[4]}}'
-                    class="card-img-top" alt="announcement image" height="200" width="100"></a>
-            {% else %}
-            <a href="{{url_for('announcement_page',club_id=ann[1],ann_id=ann[0])}}"> <img
-                    src="https://via.placeholder.com/150C/O%20https://placeholder.com/" class="card-img-top"
-                    alt="announcement image" height="200" width="100"></a>
-            {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">{{ann[2]}}</h5>
-                <p class="card-text">Click the image to learn more!</p>
+<div>
+    <div class="row row-cols-1 row-cols-md-3 g-4" style="width: 50%; margin: 0 auto; ">
+        {% for ann in announcements %}
+        <div class="col">
+            <div class="card h-100">
+                {% if ann[4] %}
+                <a href="{{url_for('announcement_page',club_id=ann[1],ann_id=ann[0])}}"> <img src='{{ann[4]}}'
+                        class="card-img-top" alt="announcement image" height="200" width="100"></a>
+                {% else %}
+                <a href="{{url_for('announcement_page',club_id=ann[1],ann_id=ann[0])}}"> <img
+                        src="https://via.placeholder.com/150C/O%20https://placeholder.com/" class="card-img-top"
+                        alt="announcement image" height="200" width="100"></a>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ann[2]}}</h5>
+                    <p class="card-text">Click the image to learn more!</p>
+                </div>
             </div>
         </div>
+
+        {% endfor %}
     </div>
+</div>
+<br>
+<br>
 
-    {% endfor %}
-    <br>
-    <br>
-
-    {% endif %}
-    <hr>
-    <br>
-    <div style="top: 400px; position: relative;">
+{% endif %}
+<hr>
+<br>
+<div>
+    <div style="top: 400px; width: 50%; margin: 0 auto;">
         <p>Clubs and Areas!</p>
         <table id="t01">
             <tr>
@@ -125,24 +133,29 @@
         </table>
 
     </div>
+</div>
 
-
-
-
-    <br>
-    <hr>
-    <p>club num</p>
-    <p> {{c_m[0]}}</p>
-    <br>
-    <hr>
-    <p>unik num</p>
-    <p> {{u_m[0]}}</p>
-    <br>
-    <hr>
-    <p>total participation num</p>
-    <p> {{t_p[0]}}</p>
-
-    <!--
+<div>
+    <div class="clubee-numbers" style="margin: 0 auto; width: 50%;">
+        <h3 style="color: sandybrown; font-size: 30px;">Clubee with numbers!</h3>
+        <p>Total number of clubs:</p>
+        <p> {{c_m[0]}}</p>
+        <br>
+        <hr>
+        <br>
+        <p>Distinct number of student participation of clubs</p>
+        <p> {{u_m[0]}}</p>
+        <br>
+        <hr>
+        <br>
+        <p>Total participation of every club:</p>
+        <p> {{t_p[0]}}</p>
+        <br>
+        <p>Average participation of a club:</p>
+        <p> {{a_p[0]}}</p>
+    </div>
+</div>
+<!--
 <table>
     <td>
         <div class="card" style="width: 50%;">
@@ -165,4 +178,4 @@
 </table>
 -->
 
-    {%endblock%}
+{%endblock%}

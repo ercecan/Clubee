@@ -21,6 +21,9 @@ connection = dbapi2.connect(Config.db_url)  #sslmode='require' for heroku
 
 
 def home_page():
+    """
+    the home page ('/') of the application
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -43,21 +46,30 @@ def home_page():
             cursor.execute(st)
             unique_member_num = cursor.fetchone()
             # /*toplam kulup katılımı*/
-            st = """select count(user_id) from members"""
+            st = """select sum(student_count) from clubs"""
             cursor.execute(st)
             total_participation = cursor.fetchone()
+
+            # /*tortalama bir kulup katılımı*/
+            st = """select avg(student_count) from clubs"""
+            cursor.execute(st)
+            average_participation = cursor.fetchone()
 
         return render_template("index.html",
                                announcements=announcements,
                                c_num=club_area_n,
                                c_m=club_number,
                                u_m=unique_member_num,
-                               t_p=total_participation)
+                               t_p=total_participation,
+                               a_p=average_participation)
     except Exception as e:
         print("Error while getting home page: ", e)
 
 
 def clubs_page():
+    """
+    in this page all clubs in database are seen
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -94,6 +106,9 @@ def clubs_page():
 
 @login_required
 def myclubs_page():
+    """
+    the user will see the joined clubs in this page
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -110,6 +125,9 @@ def myclubs_page():
 
 
 def announcements_page():  #announcements page
+    """
+    any user can see the announcements in this page
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -121,6 +139,9 @@ def announcements_page():  #announcements page
 
 
 def club_page(club_id):
+    """
+    a page of a specific club
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -146,6 +167,9 @@ def club_page(club_id):
 
 
 def login():
+    """
+    login page and login post function
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -167,12 +191,18 @@ def login():
 
 
 def logout():
+    """
+    logs user out of the session
+    """
     logout_user()
     flash("You have logged out.")
     return redirect(url_for("home_page"))
 
 
 def admin_login():
+    """
+    logs admins in the session and redirects to their own interface
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -197,6 +227,9 @@ def admin_login():
 
 
 def admin_logout():
+    """
+    logs admins out of the session
+    """
     logout_user()
     flash("You as an admin have logged out.")
     return redirect(url_for("home_page"))
@@ -204,6 +237,9 @@ def admin_logout():
 
 @login_required
 def admin_page():  #announcement ve event sayısını bastır
+    """
+    admins interface where they can add update delete announcements and events
+    """
     if not current_user.is_authenticated:
         abort(401)
         return current_app.login_manager.unauthorized()
@@ -265,6 +301,9 @@ def admin_page():  #announcement ve event sayısını bastır
 
 
 def register():
+    """
+    the page where normal users can register and then gain the ability to login
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -301,6 +340,9 @@ def register():
 def join_club(
     club_id
 ):  ##club ismiyle selectleyip clubid yi gönder ya da clubs db classı oluştur
+    """
+    a function to make authenticated users be able to join clubs
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -325,7 +367,9 @@ def join_club(
 
 @login_required
 def leave_club(club_id):
-
+    """
+    a function to make authenticated users be able to leave clubs
+    """
     if not current_user.is_authenticated or current_user.is_admin:
         abort(401)
     try:
@@ -347,6 +391,9 @@ def leave_club(club_id):
 
 
 def announcement_page(club_id, ann_id):
+    """
+    page of a specific announcement
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -374,6 +421,9 @@ def announcement_page(club_id, ann_id):
 
 @login_required
 def event_page(club_id, event_id):
+    """
+    page of a specific event
+    """
     if current_user.is_anonymous:
         pass
     else:
@@ -406,10 +456,6 @@ def event_page(club_id, event_id):
             with connection.cursor() as cursor:
                 cursor.execute(comment_update_query, (update, comment_id))
                 connection.commit()
-        # for key is request.form:
-        #     if key.startswith('update.'):
-        #         id_ = key.partition('.')[-1]
-        #         value = request.form[key]
             return redirect(
                 url_for('event_page', club_id=club_id, event_id=event_id))
 
@@ -468,6 +514,9 @@ def event_page(club_id, event_id):
 
 @login_required
 def add_announcement_page():
+    """
+    the admin interface for adding announcement
+    """
     if not current_user.is_authenticated:
         return redirect(url_for('admin_login'))
     if not current_user.is_admin:
@@ -491,7 +540,9 @@ def add_announcement_page():
 
 @login_required
 def edit_announcement_page(ann_id):
-
+    """
+    the admin interface for editing announcement
+    """
     if not current_user.is_authenticated:
         return redirect(url_for('admin_login'))
     if not current_user.is_admin:
@@ -534,6 +585,9 @@ def edit_announcement_page(ann_id):
 
 @login_required
 def add_event_page():
+    """
+    the admin interface for adding event
+    """
     if not current_user.is_authenticated:
         return redirect(url_for('admin_login'))
     if not current_user.is_admin:
@@ -561,6 +615,9 @@ def add_event_page():
 
 @login_required
 def edit_event_page(event_id):
+    """
+    the admin interface for editing event
+    """
     if not current_user.is_authenticated:
         return redirect(url_for('admin_login'))
     if not current_user.is_admin:
@@ -607,6 +664,11 @@ def edit_event_page(event_id):
 
 @login_required
 def profile(user_id):
+    """
+    a profile page for normal registered users
+    if it is users own profile; user can change account info
+    else; user can see the common clubs and basic information of the other user
+    """
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
     if current_user.is_admin:
@@ -671,15 +733,7 @@ def profile(user_id):
                 name = form.data["name"]
                 surname = form.data["surname"]
                 student_id = form.data["student_id"]
-                # if validate_studentid(
-                #         connection=connection, student_id=student_id
-                # ) is not None and student_id != user.student_id:  ##if the stud id is taken
-                #     raise ValueError('This student id is already registered')
                 email = form.data["email"]
-                # if validate_mail(
-                #         connection=connection, email=email
-                # ) is not None and email != user.email:  ##if the email is taken
-                #     raise 'This email is already registered'
                 if form.data["gender"]:
                     gender = form.data["gender"]
                 else:
@@ -703,6 +757,9 @@ def profile(user_id):
 
 @login_required
 def club_update_page():
+    """
+    admin interface where admşns can update the info of club
+    """
     if (not current_user.is_authenticated) or (current_user.is_admin == False):
         return redirect(url_for('admin_login'))
     club_id = 0
@@ -760,48 +817,19 @@ def club_update_page():
                            club_name=club_name)
 
 
-# def upload_file():
-#     fi = None
-#     if request.method == 'POST':
-#         # check if the post request has the file part
-
-#         if 'file' not in request.files:
-#             flash('No file part')
-#             return redirect(request.url)
-#         with connection.cursor() as cursor:
-#             x = request.files["file"].read()
-#             binary = dbapi2.Binary(x)
-#             # img = Image.open(request.files['file'].stream)
-#             #ima = pil2datauri(img)
-#             # bg = Image.new("RGB", img.size, (255, 255, 255))
-#             # bg.paste(img, img)
-#             #print(x)
-#             cursor.execute("insert into pic_test (blob) values (%s)",
-#                            (binary, ))
-#             connection.commit()
-#             select_blob_statement = "select encode(pic_test.blob, 'base64') as your_alias_name from pic_test where id = 1"
-#             cursor.execute(select_blob_statement)
-#             base64_img = cursor.fetchone()
-#             #image = base64.b64encode(img.tobytes())
-#             #print(fi[0])
-#             # with open("static/images/file.jpg", "wb") as f:
-#             #     f.write(fi[0])
-#             img = "data:image/png;base64," + base64_img[0]
-#             return render_template('pt.html', img=img)
-
-#         # if user does not select file, browser also
-#         # submit an empty part without filename
-#         # if file.filename == '':
-#         #     flash('No selected file')
-#         #     return redirect(request.url)
-#         # if file and allowed_file(file.filename):
-#         #     filename = secure_filename(file.filename)
-#         #     with connection.cursor() as cursor:
-#         #         a = "insert into pic_test (blob) values ({})".format(file)
-#         #         cursor.execute(a)
-#         #         connection.commit()
-#         #         # file.save(
-#         #         #     os.path.join(current_app.config['UPLOAD_FOLDER'],
-#         #         #                  filename))
-#         #         return redirect(url_for('uploaded_file', filename=filename))
-#     return render_template('pt.html', fi=fi)
+@login_required
+def reach_others():
+    """
+    a page where a user can check out other registered users
+    see which clubs they have in common
+    """
+    if (not current_user.is_authenticated) or (current_user.is_admin):
+        return redirect(url_for('login'))
+    try:
+        with connection.cursor() as cursor:
+            get_all_users_statement = """SELECT * FROM users"""
+            cursor.execute(get_all_users_statement)
+            all_users = cursor.fetchall()
+            return render_template('reach_others.html', all_users=all_users)
+    except Exception as e:
+        print('Error while reaching others: ', e)

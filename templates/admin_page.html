@@ -1,4 +1,7 @@
 {%extends "base.html"%} {% block title %}Admin Page{% endblock %} {% block content %}
+<style>
+
+</style>
 <div
     style=" margin-top: 1%; margin-bottom: 1%; padding-bottom: 1%; padding-top: 1%; position: relative; left: 34%; border-radius: 10px;  border-width: 5px;border: solid; border-color: cyan; border-width:0 1 px; width: 30%;">
     <h1
@@ -9,33 +12,82 @@
 {% if not announcements %}
 <h5>There are no announcements for {{club_name}}</h5>
 {% endif %}
+<div style="margin-bottom: 1600px;">
+    <div style="margin: 0 auto; width: 100%;">
+        <div style="padding: 5rem; float:left; width: 45%; margin: 0 auto; ">
+            <h4 style="padding:10px; border-radius: 5px; background-color: mistyrose; width: 50%; text-align: center;">
+                <a href="{{url_for('add_announcement_page')}}">Add
+                    Announcement</a>
+            </h4>
+            {% if announcements %}
+            <h3 style="padding-left: 5rem; color: coral;">Announcements</h3>
+            <table>
+                <form action="" method="post" novalidate>
+
+                    {% for ann in announcements %}
+
+                    <label class="checkbox">
+                        <input type="checkbox" name="announcement_sel" value="{{ann[0]}}" />
+                    </label>
+                    <div>
+                        <h5><a href="{{url_for('edit_announcement_page',ann_id=ann[0])}}">Edit Announcement</a></h5>
+
+                        <tr>
+                            <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
+                                <div class="card-header">{{ann[2]}}</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">Info card title</h5>
+                                    <a href="{{url_for('announcement_page',ann_id = ann[0],club_id=ann[1])}}"><img
+                                            src='{{ann[4]}}' height="150" width="250"></a>
+                                </div>
+                            </div>
+                        </tr>
 
 
-<div style="padding: 5rem; float:left; width: 45%; position: relative;">
-    <div style="left: 20%;">
-        <h4 style="padding:10px; border-radius: 5px; background-color: mistyrose; width: 50%; text-align: center;"><a
-                href="{{url_for('add_announcement_page')}}">Add
-                Announcement</a></h4>
-        {% if announcements %}
-        <h3 style="padding-left: 5rem; color: coral;">Announcements</h3>
-        <table>
-            <form action="" method="post" novalidate>
 
-                {% for ann in announcements %}
+                        {% endfor %}
+                    </div>
+                    <div>
+                        <input type="submit" name="delete_ann" class="btn btn-danger" value="Delete Announcement">
+                    </div>
+                </form>
 
-                <label class="checkbox">
-                    <input type="checkbox" name="announcement_sel" value="{{ann[0]}}" />
-                </label>
-                <div>
-                    <h5><a href="{{url_for('edit_announcement_page',ann_id=ann[0])}}">Edit Announcement</a></h5>
+            </table>
+        </div>
+        {% endif%}
+
+
+
+
+
+        {% if not events %}
+        <h5>There are no events for {{club_name}}</h5>
+        {% endif %}
+
+        <div style="padding: 5rem; float:right; width: 45%; margin: 0 auto;">
+            <h4 style="padding:10px; border-radius: 5px; background-color: mistyrose; width: 50%; text-align: center;">
+                <a href="{{url_for('add_event_page')}}">Add Event</a>
+            </h4>
+            {% if events %}
+            <h3 style="padding-left: 5rem; color: coral;">Events</h3>
+            <table>
+                <form action="" method="post" novalidate>
+
+                    {% for event in events %}
+
+                    <label class="checkbox">
+                        <input type="checkbox" name="event_sel" value="{{event[0]}}" />
+                    </label>
+
+                    <h5><a href="{{url_for('edit_event_page',event_id=event[0])}}">Edit Event</a></h5>
 
                     <tr>
                         <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
-                            <div class="card-header">{{ann[2]}}</div>
+                            <div class="card-header">{{event[2]}}</div>
                             <div class="card-body">
                                 <h5 class="card-title">Info card title</h5>
-                                <a href="{{url_for('announcement_page',ann_id = ann[0],club_id=ann[1])}}"><img
-                                        src='{{ann[4]}}' height="150" width="250"></a>
+                                <a href="{{url_for('event_page',event_id = event[0],club_id=event[1])}}"><img
+                                        src='{{event[5]}}' height="150" width="250"></a>
                             </div>
                         </div>
                     </tr>
@@ -43,65 +95,14 @@
 
 
                     {% endfor %}
-                </div>
-                <div>
-                    <input type="submit" name="delete_ann" class="btn btn-danger" value="Delete Announcement">
-                </div>
-            </form>
-
-        </table>
-    </div>
-</div>
-{% endif%}
-
-
-
-
-
-{% if not events %}
-<h5>There are no events for {{club_name}}</h5>
-{% endif %}
-
-<div style="padding: 5rem; float:left; width: 45%; position: relative;">
-    <div style="left: 20%;">
-        <h4 style="padding:10px; border-radius: 5px; background-color: mistyrose; width: 50%; text-align: center;"><a
-                href="{{url_for('add_event_page')}}">Add Event</a></h4>
-        {% if events %}
-        <h3 style="padding-left: 5rem; color: coral;">Events</h3>
-        <table>
-            <form action="" method="post" novalidate>
-
-                {% for event in events %}
-
-                <label class="checkbox">
-                    <input type="checkbox" name="event_sel" value="{{event[0]}}" />
-                </label>
-
-                <h5><a href="{{url_for('edit_event_page',event_id=event[0])}}">Edit Event</a></h5>
-
-                <tr>
-                    <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
-                        <div class="card-header">{{event[2]}}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">Info card title</h5>
-                            <a href="{{url_for('event_page',event_id = event[0],club_id=event[1])}}"><img
-                                    src='{{event[5]}}' height="150" width="250"></a>
-                        </div>
+                    <div>
+                        <input type="submit" name="delete_event" class="btn btn-danger" value="Delete Event">
                     </div>
-                </tr>
+                </form>
 
-
-
-                {% endfor %}
-                <div>
-                    <input type="submit" name="delete_event" class="btn btn-danger" value="Delete Event">
-                </div>
-            </form>
-
-        </table>
+            </table>
+        </div>
     </div>
 </div>
-
-
 {% endif %}
 {% endblock %}

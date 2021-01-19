@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %} Profile {% endblock %}
+{% block content %}
+
+
+<h1>In this page you can check common clubs you have with other people!</h1>
+
+{% if all_users %}
+<ol>
+    {% for user in all_users %}
+    {% if current_user.id != user[0] %}
+    <li>
+        <a href="{{url_for('profile',user_id=user[0])}}">{{user[2]}} {{user[3]}}</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+</ol>
+{% endif %}
+
+{% endblock %}

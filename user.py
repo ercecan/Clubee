@@ -37,6 +37,9 @@ class User(UserMixin):
         return self.active
 
     def adduser(self):
+        """
+        registers user to the database
+        """
         user_data = {
             'name': self.name,
             'surname': self.surname,
@@ -61,6 +64,9 @@ class User(UserMixin):
 
 
 def get_user_by_id(id=None):
+    """
+    returns a user by id
+    """
     if id:
         with connection.cursor() as cursor:
             q = """ SELECT * FROM users WHERE id = %(id)s """
@@ -84,6 +90,9 @@ def get_user_by_id(id=None):
 
 
 def get_user(user_id=None, email=None):
+    """
+    returns a user by student id or email
+    """
     try:
         with connection.cursor() as cursor:
             if email:
@@ -126,25 +135,11 @@ def get_user(user_id=None, email=None):
     except (Exception, dbapi2.Error) as error:
         print("Error while getting user: {}".format(error))
 
-    # password = current_app.config["ADMIN_PASSWORDS"].get(user_id)
-    # user = User(nickname=user_id, password=password) if password else None
-    # if user is not None:
-    #     user.is_admin = True  #user.student_id in current_app.config["ADMIN_USERS"]
-    #     return user
-
-
-"""
-this wont work becuase flask only works with 'get_user' sooooooooooo weird
-def get_admin_user(nickname):
-    password = current_app.config["ADMIN_PASSWORDS"].get(nickname)
-        user = User(nickname=nickname, password=password) if password else None
-        if user is not None:
-            user.is_admin = True  #user.student_id in current_app.config["ADMIN_USERS"]
-        return user
-"""
-
 
 def is_member(user_id, club_id):
+    """
+    checks if a user is a member of the given club
+    """
     try:
         with connection.cursor() as cursor:
             check_statement = """SELECT * FROM members WHERE user_id = %(user_id)s AND club_id = %(club_id)s;"""
@@ -160,6 +155,9 @@ def is_member(user_id, club_id):
 
 
 def delete_user(user_id):
+    """
+    deletes user from the database
+    """
     try:
         with connection.cursor() as cursor:
             del_user = """DELETE FROM users WHERE id = {}""".format(
@@ -171,6 +169,9 @@ def delete_user(user_id):
 
 
 def update_user(id_, name, surname, student_id, email, gender):
+    """
+    updates user info
+    """
     try:
         with connection.cursor() as cursor:
             update_user_statement = """UPDATE users SET name = %(name)s,surname = %(surname)s, 

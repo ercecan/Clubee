@@ -14,14 +14,10 @@ class Database:
         self.club_key = 0
         self.event_key = 0
 
-    """
-    def add_club(self, club):
-        self.club_key += 1
-        self.clubs[self.club_key] = club
-        return self.club_key
-    """
-
     def add_announcement(self, announcement, id):
+        """
+        used by admin to add announcements
+        """
         try:
             with self.conn.cursor() as cursor:
                 add_ann_statement = """INSERT INTO announcements (club_id,header,content,blob_image) 
@@ -39,6 +35,9 @@ class Database:
 
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
     def update_announcement(self, ann_id, announcement, img_update):
+        """
+        used by admin to edit announcements
+        """
         update_statement = ""
         try:
             with self.conn.cursor() as cursor:
@@ -61,7 +60,10 @@ class Database:
         except (Exception, dbapi2.Error) as error:
             print("Error while updating announcement: {}".format(error))
 
-    def add_event(self, event, id):  ####FIX IAMGE_URL TYPO
+    def add_event(self, event, id):
+        """
+        used by admin to add events
+        """
         try:
             with self.conn.cursor() as cursor:
                 add_event_statement = """INSERT INTO events (club_id, header, content,date_, blob_image) 
@@ -79,8 +81,10 @@ class Database:
             print("Error while adding event: {}".format(error))
 
     #id adminin idsi, ann_id announcement idsi, announcement da announcement objesi
-    def update_event(self, event_id, event,
-                     img_update):  ####FIX IAMGE_URL TYPO
+    def update_event(self, event_id, event, img_update):
+        """
+        used by admin to edit events
+        """
         update_statement = ""
         try:
             with self.conn.cursor() as cursor:
@@ -103,16 +107,10 @@ class Database:
         except (Exception, dbapi2.Error) as error:
             print("Error while updating event: {}".format(error))
 
-    def delete_announcement(self, ann_key):
-        if ann_key in self.announcements:
-            del self.announcements[ann_key]
-
-    def delete_event(self, event_key):
-        if event_key in self.events:
-            del self.events[event_key]
-
     def get_club(self, club_key):
-
+        """
+        returns a club with the given club id
+        """
         query_select_one = "SELECT * FROM clubs WHERE id = " + str(
             club_key) + ";"
         club_ = []
@@ -122,6 +120,9 @@ class Database:
         return club_
 
     def get_announcement(self, ann_id):
+        """
+        returns an announcement with the given ann id
+        """
         try:
             with self.conn.cursor() as cursor:
                 get_ann_statement = """SELECT id,club_id,header,content,encode(announcements.blob_image, 'base64') as image FROM announcements WHERE id = %(ann_id)s """
@@ -141,6 +142,10 @@ class Database:
             print("Error while getting announcement {}".format(error))
 
     def get_event(self, event_id):
+        """
+        returns an event and its comments with the given event id
+        """
+
         try:
             with self.conn.cursor() as cursor:
                 get_event_statement = """SELECT id, club_id, header, content,date_, encode(events.blob_image, 'base64') as image FROM events WHERE id = %(event_id)s """
@@ -162,13 +167,16 @@ class Database:
                     return event_, comments
                 if event:
                     comments = None
-                    return event_, comments  ##bir event arrayi belki sonra obje yaparsın
+                    return event_, comments
                 else:
                     return None
         except (Exception, dbapi2.Error) as error:
             print("Error while getting announcement {}".format(error))
 
     def get_event_info(self, event_id):
+        """
+        returns just the necessary info of event so no comments included
+        """
         try:
             with self.conn.cursor() as cursor:
                 get_event_statement = """SELECT id, club_id, header, content,date_, encode(events.blob_image, 'base64') as image FROM events WHERE id = %(event_id)s """
@@ -188,27 +196,21 @@ class Database:
             print("Error while getting announcement {}".format(error))
 
     def get_clubs(self):
+        """
+        returns all clubs ordered by student count of clubs descending
+        """
         query_select = "SELECT * FROM clubs ORDER BY student_count DESC"
         clubs = []
         with self.conn.cursor() as curr:
             curr.execute(query_select)
             clubs = curr.fetchall()
-        """
-        for club in self.clubs.items():
-            club_ = Club(name=clubs[1],
-                         description=clubs[2],
-                         history=clubs[3],
-                         announcements=clubs[4],
-                         events=clubs[5],
-                         vision=clubs[6],
-                         mission=clubs[7],
-                         student_count=clubs[8],
-                         image_url=clubs[9])
-            clubs.append((club_key, club_))
-        """
         return clubs
 
     def get_announcements(self, club_id=None, all=True, admin_id=None):
+        """
+        returns all announcements or only a clubs all announcements
+        for home page returns first 5 of the latest announcements
+        """
         try:
             with self.conn.cursor() as cursor:
                 if club_id:  ##all announcements of the club
@@ -280,6 +282,9 @@ class Database:
         club_id=None,
         admin_id=None
     ):  ##only visible if user is member and visits the clubs page
+        """
+        returns all events or only a clubs all events
+        """
         try:
             with self.conn.cursor() as cursor:
                 if club_id:
@@ -323,28 +328,15 @@ class Database:
         self, user_id
     ):  ##member club yoksa farklı bir sayfa yap üye olmaya başla diye ya da clubs_page e redirect
         member_clubs = []
-        get_member_clubs_statement = """ SELECT clubs.id, clubs.name, clubs.description, 
-                                            clubs.history, clubs.student_count, clubs.source, clubs.mission, clubs.vision, clubs.image_url
-                                            FROM clubs, members, users 
-                                            WHERE ( (users.id = """ + str(
-            user_id) + """)
-                                            AND (members.club_id = clubs.id) 
-                                            AND (members.user_id = users.id) ) """
-        #data = {'x': user_id}
+        get_member_clubs_statement = """ SELECT clubs.id, clubs.name, clubs.description, clubs.history, 
+                                        clubs.student_count, clubs.source, clubs.mission, clubs.vision, clubs.image_url 
+                                        FROM clubs 
+                                        join members 
+                                        on clubs.id = members.club_id 
+                                        join users 
+                                        on users.id = members.user_id 
+                                        where users.id = """ + str(user_id)
         with self.conn.cursor() as curr:
             curr.execute(get_member_clubs_statement)
             member_clubs = curr.fetchall()
         return member_clubs
-
-
-"""
-id SERIAL PRIMARY KEY,
-name VARCHAR(100) UNIQUE NOT NULL, 
-description TEXT,
-history TEXT,
-student_count INTEGER DEFAULT 0,
-source VARCHAR, 
-mission TEXT,
-vision TEXT,
-image_url TEXT
-"""

@@ -85,6 +85,9 @@ def create_app():
     app.add_url_rule("/adminpage/updateclub",
                      view_func=views.club_update_page,
                      methods=["GET", "POST"])
+    app.add_url_rule("/reach-others",
+                     view_func=views.reach_others,
+                     methods=["GET"])
     # app.add_url_rule("/asd",
     #                  view_func=views.upload_file,
     #                  methods=['GET', 'POST'])

@@ -3,51 +3,54 @@
     style=" margin-top: 1%; margin-bottom: 1%; padding-bottom: 1%; padding-top: 1%; position: relative; left: 34%; border-radius: 10px;  border-width: 5px;border: solid; border-color: cyan; border-width:0 1 px; width: 30%;">
     <h1
         style="text-align: center; font-family: sans-serif; color:mediumvioletred; padding: bottom 100px; font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;">
-        ADMIN PAGE <br>{{club_name[0]}}
+        ADMIN PAGE <br>{{club_name}}
     </h1>
 </div>
+<div>
+    <div style="margin: 0 auto; width: 50%;">
+        {% if form %}
+        <form action="" method="post" enctype=multipart/form-data novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.description.label }}<br>
+                {{ form.description(cols=50, rows=20) }}
+                {% for error in form.description.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.history.label }}<br>
+                {{ form.history(cols=50, rows=4) }}
+                {% for error in form.history.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.mission.label }}<br>
+                {{ form.mission(cols=50, rows=4) }}
+                {% for error in form.mission.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.vision.label }}<br>
+                {{ form.vision(cols=50, rows=4) }}
+                {% for error in form.vision.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
 
+            <p>
+                {{ form.source.label }}<br>
+                {{ form.source }}
+                {% for error in form.source.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+        {% endif %}
 
-{% if form %}
-<form action="" method="post" enctype=multipart/form-data novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.description.label }}<br>
-        {{ form.description(cols=50, rows=20) }}
-        {% for error in form.description.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.history.label }}<br>
-        {{ form.history(cols=50, rows=4) }}
-        {% for error in form.history.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.mission.label }}<br>
-        {{ form.mission(cols=50, rows=4) }}
-        {% for error in form.mission.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.vision.label }}<br>
-        {{ form.vision(cols=50, rows=4) }}
-        {% for error in form.vision.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-
-    <p>
-        {{ form.source.label }}<br>
-        {{ form.source }}
-        {% for error in form.source.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
-{% endif %}
+    </div>
+</div>
 {% endblock %}

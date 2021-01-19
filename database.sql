@@ -8,6 +8,7 @@
 *       ANNOUNCEMENTS
 *       EVENTS
 *       COMMENTS
+*       AREAS
 */
 
 

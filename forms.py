@@ -10,6 +10,9 @@ from flask_login import current_user
 
 
 class LoginForm(FlaskForm):
+    """
+    login form using flask form
+    """
     username = StringField(
         'Student ID',
         validators=[
@@ -25,6 +28,9 @@ class LoginForm(FlaskForm):
 
 
 class AdminLoginForm(FlaskForm):
+    """
+    login form for admins using flask form
+    """
     username = StringField(
         'Nickname',
         validators=[DataRequired()],
@@ -42,13 +48,21 @@ departments = [
 
 
 class RegistrationForm(FlaskForm):
+    """
+    registration form for normal users
+    """
     name = StringField('Name',
                        validators=[DataRequired()],
                        render_kw={'autofocus': True})
     surname = StringField('Surname', validators=[DataRequired()])
-    student_id = StringField('Student ID', validators=[
-        DataRequired(),
-    ])
+    student_id = StringField(
+        'Student ID',
+        validators=[
+            DataRequired(),
+            Length(min=9,
+                   max=9,
+                   message="Your Student ID Should Be 9 Characters Long")
+        ])
     email = StringField('Email', validators=[DataRequired(), Email()])
     department = SelectField('Department',
                              choices=departments,
@@ -66,6 +80,10 @@ class RegistrationForm(FlaskForm):
     # WTForms takes those as custom validators and invokes them in addition to the stock validators.
 
     def validate_email(self, email):
+        """
+        checks if the same email is already registered to the database
+        if it is then raises validation error
+        """
         user = get_user(
             email=str(email.data)
         )  ##email kontrol eden query bu email varsa başka email seçtircen
@@ -73,6 +91,10 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
     def validate_student_id(self, student_id):
+        """
+        checks if the same student id is already registered to the database
+        if it is then raises validation error
+        """
         user = get_user(user_id=str(student_id.data))
         if user is not None:
             raise ValidationError(
@@ -80,6 +102,9 @@ class RegistrationForm(FlaskForm):
 
 
 class UserUpdateForm(FlaskForm):
+    """
+    a form for users to update their account info
+    """
     name = StringField('Name',
                        validators=[DataRequired()],
                        render_kw={'autofocus': True})
@@ -97,17 +122,28 @@ class UserUpdateForm(FlaskForm):
     # WTForms takes those as custom validators and invokes them in addition to the stock validators.
 
     def validate_email(self, email):
+        """
+        checks if the same email is already registered to the database
+        if it is then raises validation error
+        """
         user = get_user(email=str(email.data))
         if (user) and (email.data != current_user.email):
             raise ValidationError('This email is already in use!')
 
     def validate_student_id(self, student_id):
+        """
+        checks if the same student id is already registered to the database
+        if it is then raises validation error
+        """
         user = get_user(user_id=str(student_id.data))
         if (user) and (student_id.data != current_user.student_id):
             raise ValidationError('This student id is already in use!')
 
 
 class CommentForm(FlaskForm):
+    """
+    form for posting comments
+    """
     content = TextAreaField(
         'Comment', validators=[Length(min=0, max=140),
                                DataRequired()])
@@ -115,21 +151,44 @@ class CommentForm(FlaskForm):
 
 
 class AnnouncementForm(FlaskForm):  ##for editing and adding
+    """
+    form used by admins to add or edit announcements
+    """
     header = TextAreaField("Header", validators=[DataRequired()])
     content = TextAreaField("Content", validators=[DataRequired()])
-    image = FileField("Image", validators=[Optional()])
+    image = FileField(
+        "Image",
+        validators=[
+            Optional(),
+            FileAllowed(['jpg', 'png', 'jpeg'],
+                        'Please upload .png, .jpg or .jpeg file.')
+        ])
     submit = SubmitField('Save Announcement')
 
 
 class EventForm(FlaskForm):  ##for editing and adding
+    """
+    form used by admins to add or edit events
+    """
     header = TextAreaField("Header", validators=[DataRequired()])
     content = TextAreaField("Content", validators=[DataRequired()])
-    image = FileField("Image", validators=[Optional()])
-    date = DateField("Event Date", format='%Y-%m-%d')  #optional or required?
+    image = FileField(
+        "Image",
+        validators=[
+            Optional(),
+            FileAllowed(['jpg', 'png', 'jpeg'],
+                        'Please upload .png, .jpg or .jpeg file.')
+        ])
+    date = DateField("Event Date",
+                     format='%Y-%m-%d',
+                     validators=[DataRequired()])  #optional or required?
     submit = SubmitField('Save Event')
 
 
-class ClubUpdateForm(FlaskForm):  ##for editing and adding
+class ClubUpdateForm(FlaskForm):  ##for editing
+    """
+    form used by admins to edit club info
+    """
     description = TextAreaField("Description", validators=[DataRequired()])
     history = TextAreaField("History", validators=[DataRequired()])
     mission = TextAreaField("Mission", validators=[DataRequired()])

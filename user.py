@@ -3,7 +3,8 @@ from flask_login import UserMixin
 import psycopg2 as dbapi2
 from config import Config
 
-connection = dbapi2.connect(Config.db_url)  #sslmode='require' for heroku
+connection = dbapi2.connect(Config.db_url,
+                            sslmode='require')  #sslmode='require' for heroku
 
 
 class User(UserMixin):

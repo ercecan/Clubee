@@ -17,7 +17,8 @@ import base64
 from PIL import Image
 from io import BytesIO
 
-connection = dbapi2.connect(Config.db_url)  #sslmode='require' for heroku
+connection = dbapi2.connect(Config.db_url,
+                            sslmode='require')  #sslmode='require' for heroku
 
 
 def home_page():

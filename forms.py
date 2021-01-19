@@ -6,6 +6,7 @@ from flask import g
 from datetime import datetime
 from wtforms.fields.html5 import DateField
 from flask_wtf.file import FileField
+from flask_login import current_user
 
 
 class LoginForm(FlaskForm):
@@ -55,16 +56,6 @@ class RegistrationForm(FlaskForm):
     gender = RadioField('Gender',
                         choices=['Female', 'Male', 'Rather Not Say'],
                         validators=[DataRequired()])
-    """
-    department = SelectField(u'Your Department in ITU',
-                             choices=[
-                                 ('ce', 'Computer Engineering'),
-                                 ('ai', 'AI and Data Science Engineering'),
-                                 ('ece',
-                                  'Electronics and Communication Engineering'),
-                                 ('ee', 'Electrical Engineering')
-                             ])
-    """
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField('Repeat Password',
                               validators=[DataRequired(),
@@ -100,44 +91,20 @@ class UserUpdateForm(FlaskForm):
     gender = RadioField('Gender',
                         choices=['Female', 'Male', 'Rather Not Say'],
                         validators=[DataRequired()])
-    """
-    department = SelectField(u'Your Department in ITU',
-                             choices=[
-                                 ('ce', 'Computer Engineering'),
-                                 ('ai', 'AI and Data Science Engineering'),
-                                 ('ece',
-                                  'Electronics and Communication Engineering'),
-                                 ('ee', 'Electrical Engineering')
-                             ])
-    """
     submit = SubmitField('Update User')
 
     ####When you add any methods that match the pattern validate_<field_name>,
     # WTForms takes those as custom validators and invokes them in addition to the stock validators.
 
+    def validate_email(self, email):
+        user = get_user(email=str(email.data))
+        if (user) and (email.data != current_user.email):
+            raise ValidationError('This email is already in use!')
 
-def validate_mail(connection, email):
-    try:
-        with connection.cursor() as cursor:
-            if email:
-                q = """select * from users where email = %(email)s"""
-                data = {'email': str(email)}
-                cursor.execute(q, data)
-                user = cursor.fetchone()
-                if user:
-                    return user
-                return None
-    except Exception as e:
-        print("error while validating mail", e)
-
-
-def validate_studentid(connection, student_id):
-    try:
-        user = get_user(user_id=str(student_id))
-        if user is not None:
-            return True
-    except Exception as e:
-        print("error while validating studentid", e)
+    def validate_student_id(self, student_id):
+        user = get_user(user_id=str(student_id.data))
+        if (user) and (student_id.data != current_user.student_id):
+            raise ValidationError('This student id is already in use!')
 
 
 class CommentForm(FlaskForm):

@@ -60,6 +60,29 @@ class User(UserMixin):
             print("Error while connecting to PostgreSQL: {}".format(error))
 
 
+def get_user_by_id(id=None):
+    if id:
+        with connection.cursor() as cursor:
+            q = """ SELECT * FROM users WHERE id = %(id)s """
+            cursor.execute(q, {'id': id})
+            _user = cursor.fetchone()
+
+            if _user:
+                _user = User(id=_user[0],
+                             email=_user[1],
+                             name=_user[2],
+                             surname=_user[3],
+                             student_id=_user[4],
+                             department=_user[5],
+                             password=_user[6],
+                             gender=_user[7]) if _user[6] else None
+            if _user:
+                _user.is_admin = False  #user.student_id in current_app.config["ADMIN_USERS"]
+                return _user
+            else:
+                return None
+
+
 def get_user(user_id=None, email=None):
     try:
         with connection.cursor() as cursor:

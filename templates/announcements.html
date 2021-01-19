@@ -29,14 +29,14 @@ content %}
         {% for ann in announcements %}
         <tr>
             <td>
-                <div class="card text-center" style="width: 90%; ;">
+                <div class="card text-center" style="width: 100%; ;">
                     <div class="card-header">
                         Featured
                     </div>
                     <div class="card-body" style="padding: 0.5rem;">
                         <h4 class="card-title ann-card">{{ann[2]}}</h4>
                         <p class="card-text">{{ann[2]}}</p>
-                        <div style="padding-top: 1rem; padding-bottom: 1rem;"><img src="{{ann[4]}}" width="700"
+                        <div style="padding-top: 1rem; padding-bottom: 1rem;"><img src="{{ann[4]}}" width="600"
                                 height="300"></div>
                         <a href="{{url_for('announcement_page',ann_id=ann[0],club_id=ann[1])}}"
                             class="btn btn-primary">Detail</a>

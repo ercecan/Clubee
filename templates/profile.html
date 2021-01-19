@@ -1,59 +1,121 @@
 {% extends "base.html" %}
 {% block title %} Profile {% endblock %}
 {% block content %}
+<style>
+    th {
+
+        border: solid 1px;
+        padding: 1rem;
+    }
+
+    tr:hover {
+        background-color: rosybrown;
+    }
+
+    td:hover {
+        color: red;
+    }
+
+    td {
+
+        border: solid 1px;
+        padding: 2rem;
+    }
+</style>
+<div>
+    <div style="margin:0 auto 0 auto; width:50%">
+        {%if not name %}
+        <!-- user info update-->
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            {{ form.csrf_token }}
+            <p>
+                {{ form.name.label }}<br>
+                {{ form.name(cols=50, rows=4) }}
+                {% for error in form.name.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.surname.label }}<br>
+                {{ form.surname(cols=50, rows=4) }}
+                {% for error in form.surname.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.student_id.label }}<br>
+                {{ form.student_id}}
+                {% for error in form.student_id.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.email.label }}<br>
+                {{ form.email(size=50) }}
+                {% for error in form.email.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.gender.label }}<br>
+                {{ form.gender }}
+                {% for error in form.gender.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
 
 
-<!-- user info update-->
-<form action="" method="post">
-    {{ form.hidden_tag() }}
-    {{ form.csrf_token }}
-    <p>
-        {{ form.name.label }}<br>
-        {{ form.name(cols=50, rows=4) }}
-        {% for error in form.name.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.surname.label }}<br>
-        {{ form.surname(cols=50, rows=4) }}
-        {% for error in form.surname.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.student_id.label }}<br>
-        {{ form.student_id}}
-        {% for error in form.student_id.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.email.label }}<br>
-        {{ form.email(size=50) }}
-        {% for error in form.email.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.gender.label }}<br>
-        {{ form.gender }}
-        {% for error in form.gender.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-
-
-    <p>{{ form.submit() }}</p>
-</form>
+            <p>{{ form.submit() }}</p>
+        </form>
 
 
 
-<form method="POST" name="delete_acc" id="delete_acc">
-    <div>
-        <input type="submit" name="delete" class="btn btn-danger" value="Delete User"
-            onclick="return confirm('Are you sure you want to delete your account? There is no coming back from this.');">
+        <form method="POST" name="delete_acc" id="delete_acc">
+            <div>
+                <input type="submit" id="delete" name="delete" class="btn btn-danger" value="Delete User"
+                    onclick="return confirm('Are you sure you want to delete your account? There is no coming back from this.');">
+            </div>
+
+        </form>
+
+        {% else %}
+        <table style="border: solid 2px;">
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Surname
+                    </th>
+                    <th>
+                        Department
+                    </th>
+                    <th>
+                        Student ID
+                    </th>
+                </tr>
+            <tbody>
+                <tr>
+                    <td>
+                        {{name}}
+                    </td>
+                    <td>
+                        {{surname}}
+                    </td>
+                    <td>
+                        {{department}}
+                    </td>
+                    <td>
+                        {{student_id}}
+                    </td>
+                </tr>
+            </tbody>
+            </thead>
+        </table>
+        {% endif %}
+
     </div>
-
-</form>
+</div>
 {% endblock %}

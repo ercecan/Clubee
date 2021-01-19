@@ -399,6 +399,20 @@ def event_page(club_id, event_id):
                                    event=_event,
                                    comments=_comment)
     elif request.method == "POST":
+        if ('update' in request.form) and (not ('delete' in request.form)):
+            update = request.form['update']
+            comment_id = request.form['commentup']
+            comment_update_query = """UPDATE comments SET content = %s WHERE id = %s; """
+            with connection.cursor() as cursor:
+                cursor.execute(comment_update_query, (update, comment_id))
+                connection.commit()
+        # for key is request.form:
+        #     if key.startswith('update.'):
+        #         id_ = key.partition('.')[-1]
+        #         value = request.form[key]
+            return redirect(
+                url_for('event_page', club_id=club_id, event_id=event_id))
+
         if 'delete' in request.form:  #task=="delete"
             form_comments = request.form.getlist("comment_name")
             if not len(form_comments):

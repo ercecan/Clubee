@@ -73,7 +73,8 @@ event
             <!--eğer kullanıcının kendi yorumuysa silebilecek-->
             <p>You can delete or update your comments</p>
             <ul>
-                <p><b>Author: </b>{{comment[5]}} {{comment[6]}}</p>
+                <p><b>Author: </b><a href="{{url_for('profile',user_id=comment[2])}}">@{{comment[5]}} {{comment[6]}}</a>
+                </p>
                 <div id="comment"
                     style="border: cadetblue; border-radius: 5%; border-style:solid; border-color: lightblue; width: 20%; height:100px; overflow: auto;">
                     <p name="change">{{comment[3]}} </p>
@@ -90,7 +91,7 @@ event
         </form>
         {% else %}
         <ul>
-            <p><b>Author: </b>{{comment[5]}} {{comment[6]}}</p>
+            <p><b>Author: </b><a href="{{url_for('profile',user_id=comment[2])}}">@{{comment[5]}} {{comment[6]}}</a>
             <div id="comment"
                 style="border: cadetblue; border-radius: 5%; border-style:solid; border-color: lightblue; width: 20%; height:100px; overflow: auto;">
                 <p>{{comment[3]}} </p>

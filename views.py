@@ -636,11 +636,30 @@ def profile(user_id):
                 surname = user.surname
                 student_id = user.student_id
                 department = user.department
+                get_common_clubs_statement = """select clubs.id, clubs.name from clubs 
+                                                join members 
+                                                on clubs.id = members.club_id 
+                                                join users 
+                                                on users.id = members.user_id 
+                                                where users.id = %s
+                                                INTERSECT 
+                                                select clubs.id, clubs.name from clubs 
+                                                join members 
+                                                on clubs.id = members.club_id 
+                                                join users 
+                                                on users.id = members.user_id 
+                                                where users.id = %s """
+                with connection.cursor() as cursor:
+                    cursor.execute(get_common_clubs_statement,
+                                   (current_user.id, user_id))
+                    common_clubs = cursor.fetchall()
+
                 return render_template('profile.html',
                                        name=name,
                                        surname=surname,
                                        student_id=student_id,
-                                       department=department)
+                                       department=department,
+                                       common_clubs=common_clubs)
         elif request.method == 'POST':
             if 'delete' in request.form:
                 return "asd"

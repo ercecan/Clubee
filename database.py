@@ -103,12 +103,6 @@ class Database:
         except (Exception, dbapi2.Error) as error:
             print("Error while updating event: {}".format(error))
 
-    """
-    def delete_club(self, club_key):
-        if club_key in self.clubs:
-            del self.clubs[club_key]
-    """
-
     def delete_announcement(self, ann_key):
         if ann_key in self.announcements:
             del self.announcements[ann_key]
@@ -125,21 +119,6 @@ class Database:
         with self.conn.cursor() as curr:
             curr.execute(query_select_one)
             club_ = curr.fetchone()
-        """
-        #old style   
-        club = self.clubs.get(club_key)
-        if club is None:
-            return None
-        club_ = Club(name=club.name,
-                     description=club.description,
-                     history=club.history,
-                     announcements=club.announcements,
-                     events=club.events,
-                     vision=club.vision,
-                     mission=club.mission,
-                     student_count=club.student_count,
-                     image_url=club.image_url)
-        """
         return club_
 
     def get_announcement(self, ann_id):

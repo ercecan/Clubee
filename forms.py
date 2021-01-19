@@ -5,7 +5,7 @@ from user import get_user
 from flask import g
 from datetime import datetime
 from wtforms.fields.html5 import DateField
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from flask_login import current_user
 
 
@@ -127,3 +127,19 @@ class EventForm(FlaskForm):  ##for editing and adding
     image = FileField("Image", validators=[Optional()])
     date = DateField("Event Date", format='%Y-%m-%d')  #optional or required?
     submit = SubmitField('Save Event')
+
+
+class ClubUpdateForm(FlaskForm):  ##for editing and adding
+    description = TextAreaField("Description", validators=[DataRequired()])
+    history = TextAreaField("History", validators=[DataRequired()])
+    mission = TextAreaField("Mission", validators=[DataRequired()])
+    vision = TextAreaField("Vision", validators=[DataRequired()])
+    # image = FileField(
+    #     "Image",
+    #     validators=[
+    #         DataRequired(),
+    #         FileAllowed(['jpg', 'png', 'jpeg'],
+    #                     'Please upload .png, .jpg or .jpeg file.')
+    #     ])
+    source = TextAreaField("Source", validators=[DataRequired()])
+    submit = SubmitField('Save Announcement')

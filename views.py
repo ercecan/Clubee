@@ -1,6 +1,6 @@
 from flask import Flask, render_template, current_app, abort, redirect, request, url_for, flash, session
 from datetime import datetime
-from forms import LoginForm, AdminLoginForm, RegistrationForm, CommentForm, AnnouncementForm, EventForm, UserUpdateForm  #, validate_mail, validate_studentid
+from forms import LoginForm, AdminLoginForm, RegistrationForm, CommentForm, AnnouncementForm, EventForm, UserUpdateForm, ClubUpdateForm  #, validate_mail, validate_studentid
 from flask_login import LoginManager, login_user, logout_user, login_required, login_fresh, current_user  #login_fresh returns true if the login is fresh(yeni)
 from user import get_user, get_user_by_id
 from passlib.hash import pbkdf2_sha256 as hasher
@@ -666,6 +666,65 @@ def profile(user_id):
                 return render_template('profile.html', form=form)
     except Exception as e:
         print("Error in profile page", e)
+
+
+@login_required
+def club_update_page():
+    if (not current_user.is_authenticated) or (current_user.is_admin == False):
+        return redirect(url_for('admin_login'))
+    club_id = 0
+    club_name = ""
+    with connection.cursor() as cursor:
+        get_club_id = """select clubs.id as club_id , clubs.name  
+        from clubs 
+        join club_managers as cm 
+        on cm.club_id = clubs.id 
+        join club_admins as ca 
+        on ca.id = cm.admin_id 
+        WHERE ca.id = %(admin_id)s; """
+        cursor.execute(get_club_id, {'admin_id': current_user.id})
+        info = cursor.fetchone()
+        club_id = info[0]
+        club_name = info[1]
+    form = ClubUpdateForm()
+    db = current_app.config["db"]
+    club = db.get_club(club_key=club_id)
+
+    if form.validate_on_submit():
+        description = form.data["description"]
+        history = form.data["history"]
+        source = form.data["source"]
+        mission = form.data["mission"]
+        vision = form.data["vision"]
+        with connection.cursor() as cursor:
+            st = """UPDATE clubs SET description = %(description)s, history = %(history)s, 
+            source = %(source)s, mission = %(mission)s, vision = %(vision)s WHERE id = (select clubs.id as club_id  
+        from clubs 
+        join club_managers as cm 
+        on cm.club_id = clubs.id 
+        join club_admins as ca 
+        on ca.id = cm.admin_id 
+        WHERE ca.id = %(admin_id)s);"""
+            data = {
+                'description': description,
+                'history': history,
+                'source': source,
+                'mission': mission,
+                'vision': vision,
+                'admin_id': current_user.id
+            }
+            cursor.execute(st, data)
+            connection.commit()
+            return redirect(url_for('club_update_page', club_id=club_id))
+    form.description.data = club[2]
+    form.history.data = club[3]
+    form.source.data = club[5]
+    form.mission.data = club[6]
+    form.vision.data = club[7]
+    return render_template('club_update.html',
+                           form=form,
+                           club_id=club_id,
+                           club_name=club_name)
 
 
 # def upload_file():
